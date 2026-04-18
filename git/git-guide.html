@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Mastery: Core Concepts & Commands</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #94a3b8;
+            margin-bottom: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #60a5fa;
+        }
+
+        .tab-btn.active {
+            color: #34d399;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #60a5fa, #34d399);
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .concept-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .concept-card:hover {
+            border-color: #60a5fa;
+            box-shadow: 0 8px 16px rgba(96, 165, 250, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .concept-card h3 {
+            color: #60a5fa;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .concept-card p {
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .diagram {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            color: #34d399;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+            display: inline-block;
+        }
+
+        .code-section {
+            background: #1e293b;
+            border-left: 4px solid #60a5fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-title {
+            color: #34d399;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            color: #94a3b8;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .command {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            display: block;
+            color: #34d399;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .command:hover {
+            background: #1e293b;
+            border-color: #60a5fa;
+            box-shadow: 0 4px 12px rgba(96, 165, 250, 0.1);
+        }
+
+        .command::before {
+            content: '$ ';
+            color: #94a3b8;
+        }
+
+        .explanation {
+            background: rgba(52, 211, 153, 0.1);
+            border-left: 4px solid #34d399;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            color: #a7f3d0;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flow-box {
+            background: rgba(96, 165, 250, 0.1);
+            border: 2px solid #60a5fa;
+            border-radius: 8px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 120px;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            color: #34d399;
+            font-size: 1.5em;
+        }
+
+        .warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            color: #fbbf24;
+        }
+
+        .checklist {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #cbd5e1;
+        }
+
+        .checklist li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #60a5fa;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+        }
+
+        footer {
+            text-align: center;
+            color: #475569;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+        }
+
+        .copy-hint {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Git Mastery</h1>
+            <p class="subtitle">Master version control from core concepts to advanced workflows</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('fundamentals')">📚 Fundamentals</button>
+            <button class="tab-btn" onclick="showTab('local')">💻 Local Operations</button>
+            <button class="tab-btn" onclick="showTab('remote')">🌐 Remote & Collaboration</button>
+            <button class="tab-btn" onclick="showTab('branching')">🌳 Branching Strategy</button>
+            <button class="tab-btn" onclick="showTab('advanced')">⚡ Advanced Techniques</button>
+            <button class="tab-btn" onclick="showTab('workflow')">🔄 Complete Workflows</button>
+        </div>
+
+        <!-- FUNDAMENTALS TAB -->
+        <div id="fundamentals" class="content active">
+            <div class="section">
+                <h2>Git Core Concepts</h2>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Repository (Repo)</h3>
+                        <p>A complete project history stored in a .git directory. Contains all commits, branches, and metadata.</p>
+                        <code>~/project/.git/</code>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Commit</h3>
+                        <p>A snapshot of your code at a point in time, with a unique hash, message, author, and timestamp.</p>
+                        <code>abc1234d... "Fix login bug"</code>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Branch</h3>
+                        <p>A lightweight pointer to a specific commit. Default branch is 'main'. Allows parallel development.</p>
+                        <code>main, feature/auth, bugfix/123</code>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>HEAD</h3>
+                        <p>A reference pointing to the current commit. Usually points to a branch name.</p>
+                        <code>HEAD → main (at commit abc1234)</code>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Index / Staging Area</h3>
+                        <p>A buffer zone between your working directory and the repository. Use it to prepare commits.</p>
+                        <code>git add file.txt (to stage)</code>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Working Directory</h3>
+                        <p>The actual files on your computer. Modified files show up as "unstaged changes".</p>
+                        <code>~/project/ (all your files)</code>
+                    </div>
+                </div>
+
+                <div class="diagram">
+                    <div class="diagram-title">Git Architecture: Three Zones</div>
+                    <svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Working Directory -->
+                        <rect x="20" y="50" width="200" height="150" fill="rgba(96, 165, 250, 0.1)" stroke="#60a5fa" stroke-width="2" rx="8"/>
+                        <text x="120" y="75" text-anchor="middle" fill="#60a5fa" font-weight="bold" font-size="16">Working Directory</text>
+                        <text x="120" y="110" text-anchor="middle" fill="#cbd5e1" font-size="13">Your files on disk</text>
+                        <text x="120" y="135" text-anchor="middle" fill="#cbd5e1" font-size="13">(modified state)</text>
+
+                        <!-- Index/Staging -->
+                        <rect x="300" y="50" width="200" height="150" fill="rgba(52, 211, 153, 0.1)" stroke="#34d399" stroke-width="2" rx="8"/>
+                        <text x="400" y="75" text-anchor="middle" fill="#34d399" font-weight="bold" font-size="16">Index / Staging</text>
+                        <text x="400" y="110" text-anchor="middle" fill="#cbd5e1" font-size="13">Changes ready for</text>
+                        <text x="400" y="135" text-anchor="middle" fill="#cbd5e1" font-size="13">commit</text>
+
+                        <!-- Repository -->
+                        <rect x="580" y="50" width="200" height="150" fill="rgba(244, 114, 182, 0.1)" stroke="#f472b6" stroke-width="2" rx="8"/>
+                        <text x="680" y="75" text-anchor="middle" fill="#f472b6" font-weight="bold" font-size="16">Repository (.git)</text>
+                        <text x="680" y="110" text-anchor="middle" fill="#cbd5e1" font-size="13">Committed</text>
+                        <text x="680" y="135" text-anchor="middle" fill="#cbd5e1" font-size="13">snapshots</text>
+
+                        <!-- Arrows -->
+                        <path d="M 230 125 L 290 125" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                        <text x="255" y="115" text-anchor="middle" fill="#60a5fa" font-size="12">git add</text>
+
+                        <path d="M 510 125 L 570 125" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrowhead2)"/>
+                        <text x="535" y="115" text-anchor="middle" fill="#34d399" font-size="12">git commit</text>
+
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#60a5fa"/>
+                            </marker>
+                            <marker id="arrowhead2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#34d399"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="section">
+                    <h3>Local vs Remote</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>Local Repository</h3>
+                            <p>Your copy of the project on your computer (.git folder). Complete history and all operations offline.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Remote Repository</h3>
+                            <p>Shared copy on a server (GitHub, GitLab, etc.). Acts as the "source of truth" for team collaboration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOCAL OPERATIONS TAB -->
+        <div id="local" class="content">
+            <div class="section">
+                <h2>Local Git Operations</h2>
+
+                <div class="code-section">
+                    <div class="code-title">Setting Up Git</div>
+                    <div class="command" onclick="copyToClipboard(this)">git config --global user.name "Your Name"</div>
+                    <div class="command" onclick="copyToClipboard(this)">git config --global user.email "you@example.com"</div>
+                    <div class="copy-hint">Click any command to copy</div>
+                </div>
+
+                <div class="section">
+                    <h3>Initialize & Clone</h3>
+                    <div class="code-section">
+                        <div class="code-title">Creating a New Repository</div>
+                        <div class="command" onclick="copyToClipboard(this)">git init</div>
+                        <div class="explanation">Creates a new .git folder in the current directory. Turns a normal folder into a Git repository.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Clone an Existing Repository</div>
+                        <div class="command" onclick="copyToClipboard(this)">git clone https://github.com/user/repo.git</div>
+                        <div class="explanation">Downloads the entire project from remote to your local machine. Sets up local tracking branches automatically.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Checking Status</h3>
+                    <div class="code-section">
+                        <div class="code-title">View Current Status</div>
+                        <div class="command" onclick="copyToClipboard(this)">git status</div>
+                        <div class="explanation">Shows which files are modified, staged, or untracked. Essential for understanding your working state.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">See Differences</div>
+                        <div class="command" onclick="copyToClipboard(this)">git diff</div>
+                        <div class="explanation">Shows unstaged changes (working directory vs index). Use git diff --staged for staged changes.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">View Log</div>
+                        <div class="command" onclick="copyToClipboard(this)">git log --oneline -n 10</div>
+                        <div class="explanation">Shows last 10 commits in compact form. Remove -n 10 to see all commits.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Staging & Committing</h3>
+                    <div class="code-section">
+                        <div class="code-title">Stage Changes (Add to Index)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git add file.txt</div>
+                        <div class="command" onclick="copyToClipboard(this)">git add .</div>
+                        <div class="command" onclick="copyToClipboard(this)">git add -p</div>
+                        <div class="explanation">
+                            <strong>git add file.txt:</strong> Stage specific file<br>
+                            <strong>git add .:</strong> Stage all changes in current directory<br>
+                            <strong>git add -p:</strong> Interactive staging (review changes chunk by chunk)
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Create a Commit</div>
+                        <div class="command" onclick="copyToClipboard(this)">git commit -m "Clear, descriptive message"</div>
+                        <div class="command" onclick="copyToClipboard(this)">git commit -am "Message"</div>
+                        <div class="explanation">
+                            <strong>-m:</strong> Inline commit message<br>
+                            <strong>-a:</strong> Auto-stage tracked files (skip git add), then commit
+                        </div>
+                    </div>
+
+                    <div class="diagram">
+                        <div class="diagram-title">Commit Workflow</div>
+                        <div class="flow-diagram">
+                            <div class="flow-box">Modify Files</div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-box">git add</div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-box">git commit</div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-box">History Saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Undoing Changes</h3>
+                    <div class="code-section">
+                        <div class="code-title">Unstage a File</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset HEAD file.txt</div>
+                        <div class="explanation">Removes file from staging area but keeps changes in working directory.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Discard Unstaged Changes</div>
+                        <div class="command" onclick="copyToClipboard(this)">git checkout -- file.txt</div>
+                        <div class="command" onclick="copyToClipboard(this)">git restore file.txt</div>
+                        <div class="explanation">Throws away changes in working directory. <strong>WARNING: This cannot be undone!</strong></div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Undo Last Commit</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset --soft HEAD~1</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset --mixed HEAD~1</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset --hard HEAD~1</div>
+                        <div class="explanation">
+                            <strong>--soft:</strong> Undo commit, keep changes staged<br>
+                            <strong>--mixed:</strong> Undo commit, keep changes unstaged (default)<br>
+                            <strong>--hard:</strong> Undo commit, discard all changes (irreversible)
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        ⚠️ <strong>Destructive Operations:</strong> --hard, checkout --, restore can permanently delete changes. Commit often and push to remote to avoid data loss!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REMOTE & COLLABORATION TAB -->
+        <div id="remote" class="content">
+            <div class="section">
+                <h2>Remote Repository & Collaboration</h2>
+
+                <div class="section">
+                    <h3>Understanding Remote</h3>
+                    <div class="concept-grid">
+                        <div class="concept-card">
+                            <h3>origin</h3>
+                            <p>Default remote name. Points to the server repository where you cloned from (usually GitHub).</p>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Tracking Branch</h3>
+                            <p>Local branch that tracks a remote branch (e.g., main tracks origin/main). Know what's ahead/behind.</p>
+                        </div>
+                        <div class="concept-card">
+                            <h3>Remote Branch</h3>
+                            <p>Read-only reference to remote branches. Updates only when you fetch/pull. Shown as origin/main, origin/feature, etc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Managing Remotes</h3>
+                    <div class="code-section">
+                        <div class="code-title">View Remotes</div>
+                        <div class="command" onclick="copyToClipboard(this)">git remote -v</div>
+                        <div class="explanation">Shows all configured remotes with URLs. -v shows both fetch and push URLs.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Add/Remove Remote</div>
+                        <div class="command" onclick="copyToClipboard(this)">git remote add origin https://github.com/user/repo.git</div>
+                        <div class="command" onclick="copyToClipboard(this)">git remote remove origin</div>
+                        <div class="explanation">Add a new remote or remove an existing one.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Fetch, Pull, Push</h3>
+
+                    <div class="diagram">
+                        <div class="diagram-title">Fetch vs Pull vs Push</div>
+                        <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Remote -->
+                            <rect x="650" y="50" width="220" height="100" fill="rgba(244, 114, 182, 0.1)" stroke="#f472b6" stroke-width="2" rx="8"/>
+                            <text x="760" y="80" text-anchor="middle" fill="#f472b6" font-weight="bold" font-size="14">Remote (GitHub)</text>
+                            <circle cx="760" cy="120" r="20" fill="#f472b6" opacity="0.5"/>
+                            <text x="760" y="125" text-anchor="middle" fill="white" font-size="12">A1</text>
+
+                            <!-- Local -->
+                            <rect x="50" y="50" width="220" height="100" fill="rgba(96, 165, 250, 0.1)" stroke="#60a5fa" stroke-width="2" rx="8"/>
+                            <text x="160" y="80" text-anchor="middle" fill="#60a5fa" font-weight="bold" font-size="14">Local Repo</text>
+                            <circle cx="160" cy="120" r="20" fill="#60a5fa" opacity="0.5"/>
+                            <text x="160" y="125" text-anchor="middle" fill="white" font-size="12">A0</text>
+
+                            <!-- Remote Tracking -->
+                            <rect x="350" y="50" width="220" height="100" fill="rgba(52, 211, 153, 0.1)" stroke="#34d399" stroke-width="2" rx="8"/>
+                            <text x="460" y="80" text-anchor="middle" fill="#34d399" font-weight="bold" font-size="14">Remote Tracking</text>
+                            <circle cx="460" cy="120" r="20" fill="#34d399" opacity="0.5"/>
+                            <text x="460" y="125" text-anchor="middle" fill="white" font-size="12">A0</text>
+
+                            <!-- Fetch Arrow -->
+                            <path d="M 580 120 L 650 120" stroke="#fbbf24" stroke-width="2" fill="none" marker-end="url(#arrow-fetch)"/>
+                            <text x="615" y="110" text-anchor="middle" fill="#fbbf24" font-weight="bold" font-size="12">FETCH</text>
+
+                            <!-- Pull Arrow (Fetch + Merge) -->
+                            <path d="M 370 120 L 350 120" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrow-pull)"/>
+                            <text x="360" y="110" text-anchor="middle" fill="#34d399" font-weight="bold" font-size="12">PULL</text>
+
+                            <!-- Push Arrow -->
+                            <path d="M 280 120 L 350 120" stroke="#60a5fa" stroke-width="2" fill="none" marker-end="url(#arrow-push)"/>
+                            <text x="315" y="110" text-anchor="middle" fill="#60a5fa" font-weight="bold" font-size="12">PUSH</text>
+
+                            <!-- Working Directory -->
+                            <rect x="50" y="200" width="220" height="70" fill="rgba(244, 114, 182, 0.1)" stroke="#f472b6" stroke-width="2" rx="8"/>
+                            <text x="160" y="227" text-anchor="middle" fill="#f472b6" font-weight="bold" font-size="14">Working Dir</text>
+                            <text x="160" y="250" text-anchor="middle" fill="#cbd5e1" font-size="12">(your files)</text>
+
+                            <text x="450" y="280" text-anchor="middle" fill="#94a3b8" font-size="12"><tspan font-weight="bold">FETCH:</tspan> Downloads commits from remote to remote-tracking branch</text>
+
+                            <defs>
+                                <marker id="arrow-fetch" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                    <polygon points="0 0, 10 3, 0 6" fill="#fbbf24"/>
+                                </marker>
+                                <marker id="arrow-pull" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                    <polygon points="0 0, 10 3, 0 6" fill="#34d399"/>
+                                </marker>
+                                <marker id="arrow-push" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                    <polygon points="0 0, 10 3, 0 6" fill="#60a5fa"/>
+                                </marker>
+                            </defs>
+                        </svg>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Fetch (Download Without Merging)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git fetch</div>
+                        <div class="command" onclick="copyToClipboard(this)">git fetch origin</div>
+                        <div class="explanation">Downloads new commits from remote. Updates remote-tracking branches (origin/main, origin/feature, etc.) but does NOT merge into your working branch. Safe to run anytime.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Pull (Fetch + Merge)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git pull</div>
+                        <div class="command" onclick="copyToClipboard(this)">git pull --rebase</div>
+                        <div class="explanation">
+                            <strong>Default (merge):</strong> Fetches and merges remote changes. Creates merge commit if there are new commits.<br>
+                            <strong>--rebase:</strong> Fetches and rebases your commits on top of remote. Cleaner history but more complex for beginners.
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Push (Upload Local Commits)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push origin main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push --all</div>
+                        <div class="explanation">
+                            <strong>Default:</strong> Push current branch to configured remote tracking branch<br>
+                            <strong>Explicit:</strong> Specify remote and branch<br>
+                            <strong>--all:</strong> Push all branches
+                        </div>
+                    </div>
+
+                    <div class="warning">
+                        ⚠️ <strong>Collaboration Tip:</strong> Always pull before pushing! If someone else pushed changes, you'll get a rejection. Pull first to merge their changes, then push yours.
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Working With Others</h3>
+                    <div class="code-section">
+                        <div class="code-title">Check What's Different</div>
+                        <div class="command" onclick="copyToClipboard(this)">git fetch origin</div>
+                        <div class="command" onclick="copyToClipboard(this)">git log --oneline main..origin/main</div>
+                        <div class="explanation">Shows commits on remote that aren't on your local main. Use this before pulling to see what you're getting.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Check Your Unpushed Work</div>
+                        <div class="command" onclick="copyToClipboard(this)">git log origin/main..main</div>
+                        <div class="explanation">Shows commits on your local main that aren't on remote yet. Ready to push!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BRANCHING TAB -->
+        <div id="branching" class="content">
+            <div class="section">
+                <h2>Branching Strategy</h2>
+
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h3>Why Branches?</h3>
+                        <p>Branches let multiple developers work in parallel. Isolate features, fixes, and experiments without affecting main codebase.</p>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Main Branch</h3>
+                        <p>Usually called 'main' or 'master'. Stable, production-ready code. Protected on most projects (requires reviews).</p>
+                    </div>
+
+                    <div class="concept-card">
+                        <h3>Feature Branch</h3>
+                        <p>Short-lived branch for a specific feature. Examples: feature/user-auth, feature/dark-mode. Merged back to main when done.</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Creating & Switching Branches</h3>
+                    <div class="code-section">
+                        <div class="code-title">List Branches</div>
+                        <div class="command" onclick="copyToClipboard(this)">git branch</div>
+                        <div class="command" onclick="copyToClipboard(this)">git branch -a</div>
+                        <div class="explanation">
+                            <strong>Local branches only:</strong> git branch<br>
+                            <strong>All (local + remote):</strong> git branch -a
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Create a New Branch</div>
+                        <div class="command" onclick="copyToClipboard(this)">git branch feature/auth</div>
+                        <div class="command" onclick="copyToClipboard(this)">git checkout -b feature/auth</div>
+                        <div class="command" onclick="copyToClipboard(this)">git switch -c feature/auth</div>
+                        <div class="explanation">
+                            <strong>git branch:</strong> Create branch but stay on current<br>
+                            <strong>git checkout -b:</strong> Create and switch in one command<br>
+                            <strong>git switch -c:</strong> Modern syntax (Git 2.23+)
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Switch Between Branches</div>
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git switch main</div>
+                        <div class="explanation">Switch to an existing branch. Must commit or stash changes first.</div>
+                    </div>
+
+                    <div class="diagram">
+                        <div class="diagram-title">Branch Workflow</div>
+                        <svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Main branch line -->
+                            <line x1="100" y1="80" x2="700" y2="80" stroke="#60a5fa" stroke-width="2"/>
+
+                            <!-- Main commits -->
+                            <circle cx="150" cy="80" r="8" fill="#60a5fa"/>
+                            <text x="150" y="110" text-anchor="middle" fill="#cbd5e1" font-size="12">C1</text>
+
+                            <circle cx="250" cy="80" r="8" fill="#60a5fa"/>
+                            <text x="250" y="110" text-anchor="middle" fill="#cbd5e1" font-size="12">C2</text>
+
+                            <circle cx="350" cy="80" r="8" fill="#60a5fa"/>
+                            <text x="350" y="110" text-anchor="middle" fill="#cbd5e1" font-size="12">C3 (merge)</text>
+
+                            <circle cx="500" cy="80" r="8" fill="#60a5fa"/>
+                            <text x="500" y="110" text-anchor="middle" fill="#cbd5e1" font-size="12">C6</text>
+
+                            <!-- Feature branch -->
+                            <line x1="250" y1="80" x2="250" y2="180" stroke="#34d399" stroke-width="2"/>
+                            <line x1="250" y1="180" x2="340" y2="180" stroke="#34d399" stroke-width="2"/>
+
+                            <!-- Feature commits -->
+                            <circle cx="280" cy="180" r="8" fill="#34d399"/>
+                            <text x="280" y="210" text-anchor="middle" fill="#cbd5e1" font-size="12">C4</text>
+
+                            <circle cx="310" cy="180" r="8" fill="#34d399"/>
+                            <text x="310" y="210" text-anchor="middle" fill="#cbd5e1" font-size="12">C5</text>
+
+                            <!-- Merge back -->
+                            <path d="M 340 180 Q 345 130 350 80" stroke="#f472b6" stroke-width="2" fill="none"/>
+
+                            <!-- Labels -->
+                            <text x="80" y="75" text-anchor="end" fill="#60a5fa" font-weight="bold" font-size="14">main</text>
+                            <text x="200" y="150" text-anchor="middle" fill="#34d399" font-weight="bold" font-size="14">feature/auth</text>
+
+                            <!-- Legend -->
+                            <text x="100" y="280" fill="#cbd5e1" font-size="13"><tspan font-weight="bold">Workflow:</tspan> Create branch at C2 → Work on C4, C5 → Merge back at C3</text>
+                            <text x="100" y="310" fill="#cbd5e1" font-size="13">Main branch continues parallel (C6) while you develop your feature.</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Merging Branches</h3>
+                    <div class="code-section">
+                        <div class="code-title">Merge a Feature Branch Into Main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git pull origin main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git merge feature/auth</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push origin main</div>
+                        <div class="explanation">
+                            1. Switch to main<br>
+                            2. Get latest from remote<br>
+                            3. Merge feature branch into current branch<br>
+                            4. Push merged changes
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Merge Conflicts</div>
+                        <div class="explanation">
+                            When you merge and both branches changed the same lines, Git can't decide automatically. You must resolve it manually.
+                        </div>
+                        <div class="command" onclick="copyToClipboard(this)">git status</div>
+                        <div class="explanation">Shows files with conflicts (marked as "both modified").</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Resolving Conflicts</div>
+                        <div class="explanation">
+                            Git marks conflicts with special markers:
+                            <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<br/>
+your changes<br/>
+=======<br/>
+their changes<br/>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; branch-name</code>
+                        </div>
+                        <div class="explanation">
+                            1. Edit the file and choose which changes to keep<br>
+                            2. Remove the &lt;&lt;&lt;, ===, and &gt;&gt;&gt; markers<br>
+                            3. Stage and commit
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Abort a Problematic Merge</div>
+                        <div class="command" onclick="copyToClipboard(this)">git merge --abort</div>
+                        <div class="explanation">Cancel the merge and return to the state before merge started.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Deleting Branches</h3>
+                    <div class="code-section">
+                        <div class="code-title">Delete Local Branch</div>
+                        <div class="command" onclick="copyToClipboard(this)">git branch -d feature/auth</div>
+                        <div class="command" onclick="copyToClipboard(this)">git branch -D feature/auth</div>
+                        <div class="explanation">
+                            <strong>-d:</strong> Safe delete (only if merged)<br>
+                            <strong>-D:</strong> Force delete (even if not merged)
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Delete Remote Branch</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push origin --delete feature/auth</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push origin :feature/auth</div>
+                        <div class="explanation">Remove branch from remote server. Useful after merging to clean up.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADVANCED TECHNIQUES TAB -->
+        <div id="advanced" class="content">
+            <div class="section">
+                <h2>Advanced Git Techniques</h2>
+
+                <div class="section">
+                    <h3>Stash: Temporarily Save Work</h3>
+                    <div class="explanation">
+                        Stash is used when you have uncommitted changes and need to switch branches without committing. Perfect for "work-in-progress" code you're not ready to commit yet.
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Save Work With Stash</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash push -m "WIP: user authentication"</div>
+                        <div class="explanation">
+                            <strong>git stash:</strong> Save all unstaged changes<br>
+                            <strong>With message:</strong> Add a description for easy reference
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">List Stashed Changes</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash list</div>
+                        <div class="explanation">Shows all stashes with IDs (stash@{0}, stash@{1}, etc.)</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Restore Stashed Work</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash pop</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash apply stash@{0}</div>
+                        <div class="explanation">
+                            <strong>pop:</strong> Restore latest stash and remove it<br>
+                            <strong>apply:</strong> Restore specific stash but keep it
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Delete Stashes</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash drop stash@{0}</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash clear</div>
+                        <div class="explanation">Remove a specific stash or all stashes.</div>
+                    </div>
+
+                    <div class="diagram">
+                        <div class="diagram-title">Stash Workflow Example</div>
+                        <div style="text-align: left; padding: 20px; color: #cbd5e1;">
+                            <code style="display: block; margin: 10px 0; color: #34d399;">$ git status</code>
+                            <code style="display: block; margin: 10px 0;">On branch feature/auth<br/>Modified: auth.js<br/>Modified: login.html</code>
+                            <br/>
+                            <code style="display: block; margin: 10px 0; color: #34d399;">$ git stash push -m "WIP: auth flow"</code>
+                            <code style="display: block; margin: 10px 0;">Saved working directory clean</code>
+                            <br/>
+                            <code style="display: block; margin: 10px 0; color: #34d399;">$ git switch main</code>
+                            <code style="display: block; margin: 10px 0;">Switched to branch 'main'</code>
+                            <br/>
+                            <code style="display: block; margin: 10px 0; color: #34d399;">$ git stash pop</code>
+                            <code style="display: block; margin: 10px 0;">Restored from stash@{0}</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Rebase: Rewrite History</h3>
+                    <div class="explanation">
+                        Rebase moves your commits on top of another branch. Creates a linear history (no merge commits) but rewrites history. Use with caution on shared branches!
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Interactive Rebase (Rewrite Commits)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git rebase -i HEAD~3</div>
+                        <div class="explanation">Opens editor to modify, squash, or reorder last 3 commits. -i means "interactive".</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Rebase Branch On Main</div>
+                        <div class="command" onclick="copyToClipboard(this)">git rebase main</div>
+                        <div class="explanation">Takes your feature branch commits and replays them on top of latest main. Cleaner than merge commit.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Abort Rebase</div>
+                        <div class="command" onclick="copyToClipboard(this)">git rebase --abort</div>
+                        <div class="explanation">Cancel the rebase and return to original state. Use if you encounter complex conflicts.</div>
+                    </div>
+
+                    <div class="warning">
+                        ⚠️ <strong>Golden Rule of Rebase:</strong> Never rebase commits that are already pushed to a shared remote! It rewrites history and causes chaos for teammates. Only rebase local branches.
+                    </div>
+
+                    <div class="diagram">
+                        <div class="diagram-title">Merge vs Rebase</div>
+                        <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Merge example -->
+                            <text x="200" y="30" text-anchor="middle" fill="#60a5fa" font-weight="bold" font-size="16">Merge (Non-Linear)</text>
+                            <line x1="50" y1="80" x2="300" y2="80" stroke="#60a5fa" stroke-width="2"/>
+                            <circle cx="100" cy="80" r="6" fill="#60a5fa"/>
+                            <circle cx="150" cy="80" r="6" fill="#60a5fa"/>
+                            <circle cx="250" cy="80" r="6" fill="#60a5fa"/>
+                            <text x="250" y="100" text-anchor="middle" fill="#cbd5e1" font-size="12">merge commit</text>
+
+                            <line x1="150" y1="80" x2="150" y2="130" stroke="#34d399" stroke-width="2"/>
+                            <line x1="150" y1="130" x2="220" y2="130" stroke="#34d399" stroke-width="2"/>
+                            <circle cx="180" cy="130" r="6" fill="#34d399"/>
+                            <circle cx="220" cy="130" r="6" fill="#34d399"/>
+
+                            <path d="M 220 130 Q 235 105 250 80" stroke="#f472b6" stroke-width="2" fill="none"/>
+
+                            <text x="50" y="165" fill="#cbd5e1" font-size="12">Result: Two parents, merge commit</text>
+                            <text x="50" y="185" fill="#cbd5e1" font-size="12">Preserves full history</text>
+
+                            <!-- Rebase example -->
+                            <text x="600" y="30" text-anchor="middle" fill="#34d399" font-weight="bold" font-size="16">Rebase (Linear)</text>
+                            <line x1="450" y1="80" x2="700" y2="80" stroke="#34d399" stroke-width="2"/>
+                            <circle cx="500" cy="80" r="6" fill="#34d399"/>
+                            <circle cx="550" cy="80" r="6" fill="#34d399"/>
+                            <circle cx="600" cy="80" r="6" fill="#34d399"/>
+                            <circle cx="650" cy="80" r="6" fill="#34d399"/>
+
+                            <text x="450" y="165" fill="#cbd5e1" font-size="12">Result: Linear history, no merge commit</text>
+                            <text x="450" y="185" fill="#cbd5e1" font-size="12">Cleaner but rewrites commit hashes</text>
+
+                            <!-- Usage note -->
+                            <text x="400" y="240" text-anchor="middle" fill="#fbbf24" font-weight="bold" font-size="14">When to Use?</text>
+                            <text x="200" y="270" fill="#cbd5e1" font-size="12">Merge: Shared branches, team collaboration</text>
+                            <text x="200" y="290" fill="#cbd5e1" font-size="12">Rebase: Local features, before PR merge</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Cherry-Pick: Apply Specific Commits</h3>
+                    <div class="explanation">
+                        Apply a specific commit from another branch to current branch. Useful for backporting fixes.
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Cherry-Pick a Commit</div>
+                        <div class="command" onclick="copyToClipboard(this)">git cherry-pick abc1234</div>
+                        <div class="command" onclick="copyToClipboard(this)">git cherry-pick abc1234..def5678</div>
+                        <div class="explanation">
+                            <strong>Single commit:</strong> Apply specific commit hash<br>
+                            <strong>Range:</strong> Apply all commits between two hashes
+                        </div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Handle Cherry-Pick Conflicts</div>
+                        <div class="command" onclick="copyToClipboard(this)">git cherry-pick --continue</div>
+                        <div class="command" onclick="copyToClipboard(this)">git cherry-pick --abort</div>
+                        <div class="explanation">Resolve conflicts and continue, or abort the operation.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Reflog: Recover Lost Commits</h3>
+                    <div class="explanation">
+                        Reflog shows every change to HEAD. Use it to recover commits you thought were deleted!
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">View Reflog</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reflog</div>
+                        <div class="explanation">Shows all HEAD movements. Entries are time-based (HEAD@{0}, HEAD@{1}, etc.)</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Recover a Lost Commit</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset --hard abc1234</div>
+                        <div class="command" onclick="copyToClipboard(this)">git reset --hard HEAD@{3}</div>
+                        <div class="explanation">Go back to a specific commit or reflog entry. Useful after accidental hard resets!</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Useful Commands & Tricks</h3>
+                    <div class="code-section">
+                        <div class="code-title">Undo Last Push (If Not Shared)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git revert HEAD</div>
+                        <div class="command" onclick="copyToClipboard(this)">git push origin main --force</div>
+                        <div class="explanation">Creates new commit that undoes changes. Safer than reset --hard for pushed commits.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Squash Commits Into One</div>
+                        <div class="command" onclick="copyToClipboard(this)">git rebase -i HEAD~3</div>
+                        <div class="explanation">Use interactive rebase, then change 'pick' to 'squash' for commits you want to combine.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">Search Commit History</div>
+                        <div class="command" onclick="copyToClipboard(this)">git log --oneline --grep="bug fix"</div>
+                        <div class="command" onclick="copyToClipboard(this)">git log -S "function_name"</div>
+                        <div class="explanation">Find commits by message or by code changes. Helpful for tracking down when something changed.</div>
+                    </div>
+
+                    <div class="code-section">
+                        <div class="code-title">See Who Changed What (Blame)</div>
+                        <div class="command" onclick="copyToClipboard(this)">git blame file.js</div>
+                        <div class="explanation">Shows each line's author, commit hash, and date. Find who wrote problematic code!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPLETE WORKFLOWS TAB -->
+        <div id="workflow" class="content">
+            <div class="section">
+                <h2>Complete Git Workflows</h2>
+
+                <div class="section">
+                    <h3>Workflow 1: Creating & Merging a Feature</h3>
+                    <div class="code-section">
+                        <div class="code-title">Step-by-Step: Feature Development</div>
+                        <div class="command" onclick="copyToClipboard(this)">git checkout -b feature/user-dashboard</div>
+                        <div class="explanation">Create and switch to new feature branch.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">echo "new code" > dashboard.js</div>
+                        <div class="explanation">Make your changes (edit files).</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git add dashboard.js</div>
+                        <div class="explanation">Stage your changes.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git commit -m "feat: add user dashboard"</div>
+                        <div class="explanation">Commit with clear message.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push -u origin feature/user-dashboard</div>
+                        <div class="explanation">Push to remote. -u sets upstream for future pushes.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main</div>
+                        <div class="explanation">Switch back to main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git pull origin main</div>
+                        <div class="explanation">Get latest main from remote.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git merge feature/user-dashboard</div>
+                        <div class="explanation">Merge feature into main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push origin main</div>
+                        <div class="explanation">Push merged code to remote.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git branch -d feature/user-dashboard</div>
+                        <div class="explanation">Clean up local branch (optional).</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push origin --delete feature/user-dashboard</div>
+                        <div class="explanation">Clean up remote branch (optional).</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Workflow 2: Collaborative Development (Team)</h3>
+                    <div class="code-section">
+                        <div class="code-title">Scenario: Pulling Changes From Teammates</div>
+                        <div class="command" onclick="copyToClipboard(this)">git fetch origin</div>
+                        <div class="explanation">Check for new changes without merging.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git log main..origin/main</div>
+                        <div class="explanation">See what your teammates pushed.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git pull origin main</div>
+                        <div class="explanation">Download and merge their changes into your local main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git rebase origin/main</div>
+                        <div class="explanation">Alternative: Rebase your work on top of latest main (cleaner history).</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Workflow 3: Emergency Fix (Hotfix)</h3>
+                    <div class="code-section">
+                        <div class="code-title">Quick Production Fix While Working on Feature</div>
+                        <div class="command" onclick="copyToClipboard(this)">git stash</div>
+                        <div class="explanation">Save your current work (feature branch).</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main</div>
+                        <div class="explanation">Switch to main for the hotfix.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout -b hotfix/critical-bug</div>
+                        <div class="explanation">Create hotfix branch from main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">echo "fix code" > critical.js</div>
+                        <div class="explanation">Make and commit the fix.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git add . && git commit -m "fix: critical production bug"</div>
+                        <div class="explanation">Commit the hotfix.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push origin hotfix/critical-bug</div>
+                        <div class="explanation">Push hotfix branch.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main && git merge hotfix/critical-bug && git push</div>
+                        <div class="explanation">Merge hotfix into main and push.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout feature/user-dashboard</div>
+                        <div class="explanation">Back to your feature branch.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git stash pop</div>
+                        <div class="explanation">Restore your stashed work.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Workflow 4: Rebase Before Merge Request</h3>
+                    <div class="code-section">
+                        <div class="code-title">Clean History Before Creating Pull Request</div>
+                        <div class="command" onclick="copyToClipboard(this)">git fetch origin</div>
+                        <div class="explanation">Get latest from remote.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git rebase origin/main</div>
+                        <div class="explanation">Replay your commits on top of latest main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git rebase -i HEAD~5</div>
+                        <div class="explanation">Clean up your last 5 commits (squash, reorder, etc.).</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push origin feature/my-feature --force-with-lease</div>
+                        <div class="explanation">Push rebased branch. --force-with-lease is safer than --force.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Workflow 5: Syncing Your Fork</h3>
+                    <div class="code-section">
+                        <div class="code-title">Update Your Fork With Upstream Changes</div>
+                        <div class="command" onclick="copyToClipboard(this)">git remote add upstream https://github.com/original/repo.git</div>
+                        <div class="explanation">Add reference to original repo (one-time setup).</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git fetch upstream</div>
+                        <div class="explanation">Get latest from original repo.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git checkout main</div>
+                        <div class="explanation">Switch to main branch.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git rebase upstream/main</div>
+                        <div class="explanation">Update your main with original repo's main.</div>
+
+                        <div class="command" onclick="copyToClipboard(this)">git push origin main --force-with-lease</div>
+                        <div class="explanation">Push updated main to your fork.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Checklist: Before Your First Commit</h3>
+                    <ul class="checklist">
+                        <li>Configure user name and email: <code>git config --global user.name</code></li>
+                        <li>Understand the three zones: Working → Index → Repository</li>
+                        <li>Write clear commit messages (imperative mood: "Add feature" not "Added feature")</li>
+                        <li>Commit frequently with logical, atomic changes</li>
+                        <li>Always pull before pushing to avoid conflicts</li>
+                        <li>Never force-push to shared branches</li>
+                        <li>Use branches for features, fixes, and experiments</li>
+                        <li>Review what you're committing with <code>git diff</code> before staging</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Git Mastery Guide • Master Version Control • Click any command to copy</p>
+        </footer>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all content
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected content
+            document.getElementById(tabName).classList.add('active');
+
+            // Activate clicked button
+            event.target.classList.add('active');
+        }
+
+        function copyToClipboard(element) {
+            const text = element.textContent.replace('$ ', '').trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.textContent;
+                element.textContent = '✓ Copied!';
+                element.style.color = '#34d399';
+                setTimeout(() => {
+                    element.textContent = originalText;
+                    element.style.color = '';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
