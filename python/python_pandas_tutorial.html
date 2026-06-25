@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandas in Python – Complete Tutorial</title>
+<style>
+  :root {
+    --bg: #fafaf8;
+    --surface: #ffffff;
+    --surface2: #f3f2ef;
+    --sidebar-bg: #1c1e2e;
+    --accent: #e05c2a;
+    --accent2: #2a7ae0;
+    --accent3: #2ab87a;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --code-bg: #1c1e2e;
+    --code-text: #e2e8f0;
+    --border: #e5e7eb;
+    --sidebar-text: #a8b0c4;
+    --sidebar-link-hover: #ffffff;
+    --tag-orange: #fff0eb;
+    --tag-blue: #ebf4ff;
+    --tag-green: #ebfff5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 0 40px;
+  }
+
+  .sidebar-brand {
+    padding: 0 22px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-brand-icon {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-brand-title {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+  }
+
+  .sidebar-brand-sub {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    color: var(--sidebar-text);
+    margin-top: 2px;
+  }
+
+  .nav-group { margin-bottom: 6px; }
+
+  .nav-group-label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 10px 22px 3px;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 5px 22px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-link:hover { color: var(--sidebar-link-hover); background: rgba(255,255,255,0.04); }
+  .nav-link.active { color: #fff; border-left-color: var(--accent); background: rgba(224,92,42,0.1); }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    max-width: 860px;
+    padding: 52px 60px 80px;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 52px;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--tag-orange);
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 580px;
+    font-style: italic;
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    line-height: 1.6;
+  }
+
+  .hero-install {
+    margin-top: 24px;
+    background: var(--code-bg);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 13.5px;
+    color: #a6e3a1;
+  }
+
+  .hero-install span { color: var(--sidebar-text); font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 58px; scroll-margin-top: 20px; }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  h3 {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 28px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  p { color: var(--muted); margin-bottom: 14px; font-size: 15.5px; }
+  p strong { color: var(--text); }
+  ul, ol { color: var(--muted); padding-left: 22px; margin-bottom: 14px; font-size: 15px; }
+  li { margin-bottom: 6px; }
+  li strong { color: var(--text); }
+  code { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 13px; background: #f0eeeb; padding: 1px 5px; border-radius: 3px; color: var(--accent); }
+
+  /* CONCEPT CARDS */
+  .concept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    border-top: 3px solid var(--accent);
+  }
+
+  .concept-card.blue { border-top-color: var(--accent2); }
+  .concept-card.green { border-top-color: var(--accent3); }
+  .concept-card.purple { border-top-color: #9f7aea; }
+
+  .concept-title {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+
+  .concept-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 16px;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .code-label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(168,176,196,0.7);
+  }
+
+  .copy-btn {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: transparent;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .copy-btn.copied { color: #4ade80; border-color: #4ade80; }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--code-text);
+  }
+
+  /* Syntax highlighting */
+  .k  { color: #cba6f7; } /* keyword */
+  .s  { color: #a6e3a1; } /* string */
+  .c  { color: #585b70; font-style: italic; } /* comment */
+  .f  { color: #89b4fa; } /* function/method */
+  .n  { color: #fab387; } /* number */
+  .t  { color: #94e2d5; } /* type/class */
+  .op { color: #cdd6f4; } /* operator */
+  .m  { color: #f9e2af; } /* attr/method chain */
+  .o  { color: #f38ba8; } /* output highlight */
+
+  /* OUTPUT BLOCK */
+  .output-block {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: -8px 0 16px;
+    font-family: 'Cascadia Code', monospace;
+    font-size: 13px;
+    color: #374151;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+
+  .output-label {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 6px;
+  }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-left: 3px solid;
+    font-size: 14.5px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  .callout.tip  { background: #f0fdf4; border-color: var(--accent3); }
+  .callout.warn { background: #fffbeb; border-color: #f59e0b; }
+  .callout.info { background: #eff6ff; border-color: var(--accent2); }
+
+  .callout-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .callout.tip  .callout-label { color: var(--accent3); }
+  .callout.warn .callout-label { color: #d97706; }
+  .callout.info .callout-label { color: var(--accent2); }
+  .callout p { margin: 0; color: #374151; font-family: 'Segoe UI', sans-serif; font-size: 14px; }
+
+  /* TABLE */
+  .ref-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13.5px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .ref-table th { background: var(--sidebar-bg); color: var(--sidebar-text); padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; }
+  .ref-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  .ref-table tr:last-child td { border-bottom: none; }
+  .ref-table tr:hover td { background: var(--surface2); }
+  .ref-table td:first-child { font-family: 'Cascadia Code', monospace; font-size: 12.5px; color: var(--accent); white-space: nowrap; }
+  .ref-table td strong { color: var(--text); font-weight: 600; }
+
+  /* DATA VISUAL */
+  .df-visual {
+    font-family: 'Cascadia Code', monospace;
+    font-size: 12.5px;
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .df-visual table { width: 100%; border-collapse: collapse; }
+  .df-visual th { background: #e9ecef; padding: 7px 14px; text-align: right; color: #495057; font-weight: 600; border-bottom: 1px solid #dee2e6; }
+  .df-visual th:first-child { text-align: left; color: #6c757d; }
+  .df-visual td { padding: 6px 14px; text-align: right; color: #212529; border-bottom: 1px solid #f1f3f5; }
+  .df-visual td:first-child { color: #6c757d; font-weight: 600; text-align: left; }
+  .df-visual tr:last-child td { border-bottom: none; }
+  .df-visual tr:hover td { background: #f1f3f5; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+  .sidebar ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-icon">🐼</div>
+    <div class="sidebar-brand-title">pandas for Python</div>
+    <div class="sidebar-brand-sub">Complete Beginner Tutorial</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Foundations</div>
+    <a class="nav-link active" href="#intro" onclick="setActive(this)">What is pandas?</a>
+    <a class="nav-link" href="#setup" onclick="setActive(this)">Setup</a>
+    <a class="nav-link" href="#series" onclick="setActive(this)">Series</a>
+    <a class="nav-link" href="#dataframe" onclick="setActive(this)">DataFrame</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Reading Data</div>
+    <a class="nav-link" href="#read-csv" onclick="setActive(this)">Read CSV / Excel</a>
+    <a class="nav-link" href="#inspect" onclick="setActive(this)">Inspect a DataFrame</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Selecting Data</div>
+    <a class="nav-link" href="#select-cols" onclick="setActive(this)">Columns & Rows</a>
+    <a class="nav-link" href="#filtering" onclick="setActive(this)">Filtering</a>
+    <a class="nav-link" href="#loc-iloc" onclick="setActive(this)">loc & iloc</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Cleaning Data</div>
+    <a class="nav-link" href="#missing" onclick="setActive(this)">Missing Values</a>
+    <a class="nav-link" href="#duplicates" onclick="setActive(this)">Duplicates</a>
+    <a class="nav-link" href="#dtypes" onclick="setActive(this)">Data Types</a>
+    <a class="nav-link" href="#rename" onclick="setActive(this)">Rename & Drop</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Transforming</div>
+    <a class="nav-link" href="#sort" onclick="setActive(this)">Sort & Rank</a>
+    <a class="nav-link" href="#groupby" onclick="setActive(this)">GroupBy</a>
+    <a class="nav-link" href="#apply" onclick="setActive(this)">Apply Functions</a>
+    <a class="nav-link" href="#merge" onclick="setActive(this)">Merge & Join</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Analysis</div>
+    <a class="nav-link" href="#stats" onclick="setActive(this)">Summary Stats</a>
+    <a class="nav-link" href="#pivot" onclick="setActive(this)">Pivot Tables</a>
+    <a class="nav-link" href="#strings" onclick="setActive(this)">String Operations</a>
+    <a class="nav-link" href="#dates" onclick="setActive(this)">Dates & Times</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Output</div>
+    <a class="nav-link" href="#export" onclick="setActive(this)">Export Data</a>
+    <a class="nav-link" href="#cheatsheet" onclick="setActive(this)">Cheatsheet</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="hero" id="intro">
+    <div class="hero-tag">Beginner Tutorial</div>
+    <h1>Data Analysis with<br><span>pandas</span></h1>
+    <p class="hero-desc">pandas is Python's most powerful tool for working with structured data — think of it as a supercharged spreadsheet you control with code.</p>
+    <div class="hero-install">pip install pandas<span>— then you're ready</span></div>
+  </div>
+
+  <!-- WHAT IS PANDAS -->
+  <div class="section">
+    <h2>What is pandas?</h2>
+    <p>pandas is a Python library built for data manipulation and analysis. It lets you load, clean, filter, transform, and analyze tabular data (rows and columns — like a spreadsheet or database table) efficiently using Python.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-title">📋 Series</div>
+        <p class="concept-desc">A single column of data with an index. Like a Python list, but more powerful.</p>
+      </div>
+      <div class="concept-card blue">
+        <div class="concept-title">📊 DataFrame</div>
+        <p class="concept-desc">A table with rows and columns. This is the core object you'll use most.</p>
+      </div>
+      <div class="concept-card green">
+        <div class="concept-title">🏷️ Index</div>
+        <p class="concept-desc">Labels for each row — like a primary key. Can be numbers, dates, or strings.</p>
+      </div>
+      <div class="concept-card purple">
+        <div class="concept-title">🔄 Vectorized ops</div>
+        <p class="concept-desc">Operations apply to entire columns at once — no loops needed, very fast.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="section" id="setup">
+    <h2>Setup</h2>
+    <p>Install pandas and a few companion libraries you'll often use together:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>pip install pandas openpyxl numpy</pre>
+    </div>
+
+    <p>At the top of every Python script or notebook, import pandas like this:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="k">import</span> pandas <span class="k">as</span> pd   <span class="c"># pd is the universally used alias</span>
+<span class="k">import</span> numpy  <span class="k">as</span> np   <span class="c"># numpy helps with numbers</span>
+
+<span class="f">print</span>(pd.__version__)  <span class="c"># Check pandas version</span></pre>
+    </div>
+  </div>
+
+  <!-- SERIES -->
+  <div class="section" id="series">
+    <h2>Series — A Single Column</h2>
+    <p>A <strong>Series</strong> is a one-dimensional array with labels (an index). Think of it as a single column from a spreadsheet.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="k">import</span> pandas <span class="k">as</span> pd
+
+<span class="c"># Create a Series from a Python list</span>
+scores = pd.<span class="t">Series</span>([<span class="n">88</span>, <span class="n">92</span>, <span class="n">75</span>, <span class="n">95</span>, <span class="n">67</span>])
+<span class="f">print</span>(scores)</pre>
+    </div>
+    <div class="output-block">
+      <div class="output-label">Output</div>
+0    88<br>1    92<br>2    75<br>3    95<br>4    67<br>dtype: int64
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Give it a custom index (labels)</span>
+scores = pd.<span class="t">Series</span>(
+    [<span class="n">88</span>, <span class="n">92</span>, <span class="n">75</span>, <span class="n">95</span>, <span class="n">67</span>],
+    index=[<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>, <span class="s">"Dave"</span>, <span class="s">"Eve"</span>]
+)
+
+<span class="f">print</span>(scores[<span class="s">"Alice"</span>])   <span class="c"># 88  — access by label</span>
+<span class="f">print</span>(scores.<span class="m">mean</span>())     <span class="c"># 83.4</span>
+<span class="f">print</span>(scores.<span class="m">max</span>())      <span class="c"># 95</span>
+<span class="f">print</span>(scores > <span class="n">80</span>)       <span class="c"># Boolean mask</span></pre>
+    </div>
+  </div>
+
+  <!-- DATAFRAME -->
+  <div class="section" id="dataframe">
+    <h2>DataFrame — Your Main Tool</h2>
+    <p>A <strong>DataFrame</strong> is a 2D table — rows and named columns. You can create one from a dictionary, a list of lists, a CSV, or many other sources.</p>
+
+    <h3>Creating a DataFrame</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="k">import</span> pandas <span class="k">as</span> pd
+
+<span class="c"># From a dictionary — keys become column names</span>
+data = {
+    <span class="s">"name"</span>:    [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>, <span class="s">"Dave"</span>],
+    <span class="s">"dept"</span>:    [<span class="s">"Sales"</span>, <span class="s">"Tech"</span>, <span class="s">"Sales"</span>, <span class="s">"HR"</span>],
+    <span class="s">"salary"</span>:  [<span class="n">72000</span>, <span class="n">95000</span>, <span class="n">68000</span>, <span class="n">61000</span>],
+    <span class="s">"years"</span>:   [<span class="n">3</span>, <span class="n">7</span>, <span class="n">2</span>, <span class="n">5</span>],
+}
+
+df = pd.<span class="t">DataFrame</span>(data)
+<span class="f">print</span>(df)</pre>
+    </div>
+
+    <div class="df-visual">
+      <table>
+        <thead><tr><th></th><th>name</th><th>dept</th><th>salary</th><th>years</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td>Alice</td><td>Sales</td><td>72000</td><td>3</td></tr>
+          <tr><td>1</td><td>Bob</td><td>Tech</td><td>95000</td><td>7</td></tr>
+          <tr><td>2</td><td>Carol</td><td>Sales</td><td>68000</td><td>2</td></tr>
+          <tr><td>3</td><td>Dave</td><td>HR</td><td>61000</td><td>5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-label">ℹ️ Index</div>
+      <p>The leftmost column (0, 1, 2, 3) is the <strong>index</strong> — row labels that pandas adds automatically. You can customize it or set a column as the index.</p>
+    </div>
+  </div>
+
+  <!-- READ CSV / EXCEL -->
+  <div class="section" id="read-csv">
+    <h2>Reading CSV &amp; Excel Files</h2>
+    <p>In real projects, you load data from files — not type it by hand. pandas makes this one line of code.</p>
+
+    <h3>Read a CSV file</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Basic — reads header row automatically</span>
+df = pd.<span class="f">read_csv</span>(<span class="s">"employees.csv"</span>)
+
+<span class="c"># With options:</span>
+df = pd.<span class="f">read_csv</span>(
+    <span class="s">"sales_data.csv"</span>,
+    sep=<span class="s">","</span>,           <span class="c"># delimiter (default is comma)</span>
+    header=<span class="n">0</span>,          <span class="c"># row number of the header (0 = first row)</span>
+    index_col=<span class="s">"id"</span>,    <span class="c"># set a column as the index</span>
+    parse_dates=[<span class="s">"date"</span>] <span class="c"># auto-parse date columns</span>
+)</pre>
+    </div>
+
+    <h3>Read an Excel file</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Read the first sheet</span>
+df = pd.<span class="f">read_excel</span>(<span class="s">"report.xlsx"</span>)
+
+<span class="c"># Read a specific sheet by name</span>
+df = pd.<span class="f">read_excel</span>(<span class="s">"report.xlsx"</span>, sheet_name=<span class="s">"Q2 Data"</span>)
+
+<span class="c"># Read all sheets into a dictionary</span>
+sheets = pd.<span class="f">read_excel</span>(<span class="s">"report.xlsx"</span>, sheet_name=<span class="k">None</span>)
+<span class="f">print</span>(sheets.keys())  <span class="c"># dict_keys(['Sheet1', 'Q2 Data', ...])</span></pre>
+    </div>
+  </div>
+
+  <!-- INSPECT -->
+  <div class="section" id="inspect">
+    <h2>Inspecting a DataFrame</h2>
+    <p>Before doing anything with your data, always explore it first. These are the commands you'll use every single time:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre>df.<span class="m">head</span>()         <span class="c"># First 5 rows (pass a number to change: df.head(10))</span>
+df.<span class="m">tail</span>(<span class="n">3</span>)        <span class="c"># Last 3 rows</span>
+df.<span class="m">shape</span>          <span class="c"># (rows, columns) — e.g. (1500, 12)</span>
+df.<span class="m">columns</span>        <span class="c"># Column names</span>
+df.<span class="m">dtypes</span>         <span class="c"># Data type of each column</span>
+df.<span class="m">info</span>()         <span class="c"># Summary: columns, non-null counts, dtypes</span>
+df.<span class="m">describe</span>()     <span class="c"># Stats: mean, std, min, max for numeric columns</span>
+df.<span class="m">isnull</span>().<span class="m">sum</span>() <span class="c"># Count missing values per column</span>
+df.<span class="m">value_counts</span>() <span class="c"># Count occurrences (on a Series or column)</span></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-label">💡 Habit to build</div>
+      <p>Always run <code>df.head()</code>, <code>df.info()</code>, and <code>df.isnull().sum()</code> as your first three commands whenever you load a new dataset.</p>
+    </div>
+  </div>
+
+  <!-- SELECT COLS & ROWS -->
+  <div class="section" id="select-cols">
+    <h2>Selecting Columns &amp; Rows</h2>
+
+    <h3>Selecting Columns</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Single column → returns a Series</span>
+df[<span class="s">"name"</span>]
+
+<span class="c"># Multiple columns → returns a DataFrame</span>
+df[[<span class="s">"name"</span>, <span class="s">"salary"</span>]]
+
+<span class="c"># All columns except one</span>
+df.<span class="m">drop</span>(columns=[<span class="s">"years"</span>])</pre>
+    </div>
+
+    <h3>Selecting Rows by Position</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Row at position 0 (first row)</span>
+df.<span class="m">iloc</span>[<span class="n">0</span>]
+
+<span class="c"># Rows 0 to 2 (not including 3)</span>
+df.<span class="m">iloc</span>[<span class="n">0</span>:<span class="n">3</span>]
+
+<span class="c"># Last row</span>
+df.<span class="m">iloc</span>[-<span class="n">1</span>]
+
+<span class="c"># Specific row AND columns by position</span>
+df.<span class="m">iloc</span>[<span class="n">1</span>, <span class="n">2</span>]       <span class="c"># row 1, column 2</span>
+df.<span class="m">iloc</span>[:<span class="n">3</span>, [<span class="n">0</span>,<span class="n">2</span>]]   <span class="c"># first 3 rows, columns 0 and 2</span></pre>
+    </div>
+  </div>
+
+  <!-- FILTERING -->
+  <div class="section" id="filtering">
+    <h2>Filtering Rows</h2>
+    <p>Filtering uses <strong>boolean conditions</strong> — you write a condition that produces True/False for each row, then use it to select matching rows.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Single condition: salary over 70,000</span>
+df[df[<span class="s">"salary"</span>] > <span class="n">70000</span>]
+
+<span class="c"># Multiple conditions: use & (and), | (or)</span>
+<span class="c"># ⚠️ Wrap each condition in parentheses!</span>
+df[(df[<span class="s">"dept"</span>] == <span class="s">"Sales"</span>) & (df[<span class="s">"salary"</span>] > <span class="n">65000</span>)]
+
+<span class="c"># Filter with OR</span>
+df[(df[<span class="s">"dept"</span>] == <span class="s">"Sales"</span>) | (df[<span class="s">"dept"</span>] == <span class="s">"HR"</span>)]
+
+<span class="c"># Shorthand for OR — isin()</span>
+df[df[<span class="s">"dept"</span>].<span class="m">isin</span>([<span class="s">"Sales"</span>, <span class="s">"HR"</span>])]
+
+<span class="c"># NOT equal</span>
+df[df[<span class="s">"dept"</span>] != <span class="s">"Tech"</span>]
+
+<span class="c"># Filter by string content</span>
+df[df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">startswith</span>(<span class="s">"A"</span>)]</pre>
+    </div>
+  </div>
+
+  <!-- LOC & ILOC -->
+  <div class="section" id="loc-iloc">
+    <h2>loc vs iloc</h2>
+    <p>These are the two main ways to select specific rows and columns. The difference: <strong>loc uses labels</strong>, <strong>iloc uses integer positions</strong>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># ── loc: select by LABEL ──────────────────────────────</span>
+df.<span class="m">loc</span>[<span class="n">0</span>]                  <span class="c"># Row with index label 0</span>
+df.<span class="m">loc</span>[<span class="n">0</span>, <span class="s">"salary"</span>]        <span class="c"># Row 0, column "salary"</span>
+df.<span class="m">loc</span>[<span class="n">0</span>:<span class="n">2</span>, [<span class="s">"name"</span>, <span class="s">"dept"</span>]] <span class="c"># Rows 0–2, two columns</span>
+                             <span class="c"># NOTE: loc slicing INCLUDES the end (2)</span>
+
+<span class="c"># ── iloc: select by POSITION ──────────────────────────</span>
+df.<span class="m">iloc</span>[<span class="n">0</span>]                  <span class="c"># First row (position 0)</span>
+df.<span class="m">iloc</span>[<span class="n">0</span>, <span class="n">2</span>]              <span class="c"># First row, third column</span>
+df.<span class="m">iloc</span>[<span class="n">0</span>:<span class="n">3</span>, <span class="n">0</span>:<span class="n">2</span>]          <span class="c"># Rows 0–2 (excl 3), cols 0–1 (excl 2)</span>
+
+<span class="c"># ── Update a value ────────────────────────────────────</span>
+df.<span class="m">loc</span>[<span class="n">0</span>, <span class="s">"salary"</span>] = <span class="n">75000</span>  <span class="c"># Change Alice's salary</span></pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-label">⚠️ Key difference</div>
+      <p><code>loc[0:2]</code> returns rows with labels 0, 1, <strong>and 2</strong> (inclusive). <code>iloc[0:2]</code> returns only positions 0 and 1 (exclusive end) — just like regular Python slicing.</p>
+    </div>
+  </div>
+
+  <!-- MISSING VALUES -->
+  <div class="section" id="missing">
+    <h2>Handling Missing Values</h2>
+    <p>Real-world data always has gaps. pandas represents missing values as <code>NaN</code> (Not a Number). Here's how to find and fix them:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># ── Detect missing values ─────────────────────────────</span>
+df.<span class="m">isnull</span>()          <span class="c"># True wherever value is NaN</span>
+df.<span class="m">isnull</span>().<span class="m">sum</span>()    <span class="c"># Count NaNs per column</span>
+df.<span class="m">notnull</span>()         <span class="c"># Inverse — True where NOT missing</span>
+
+<span class="c"># ── Drop rows with missing values ─────────────────────</span>
+df.<span class="m">dropna</span>()                    <span class="c"># Drop any row with at least one NaN</span>
+df.<span class="m">dropna</span>(subset=[<span class="s">"salary"</span>])  <span class="c"># Only drop if "salary" is missing</span>
+df.<span class="m">dropna</span>(thresh=<span class="n">3</span>)           <span class="c"># Keep rows with at least 3 non-NaN values</span>
+
+<span class="c"># ── Fill missing values ───────────────────────────────</span>
+df.<span class="m">fillna</span>(<span class="n">0</span>)                   <span class="c"># Fill all NaNs with 0</span>
+df[<span class="s">"salary"</span>].<span class="m">fillna</span>(df[<span class="s">"salary"</span>].<span class="m">mean</span>())  <span class="c"># Fill with column mean</span>
+df.<span class="m">fillna</span>(method=<span class="s">"ffill"</span>)      <span class="c"># Forward fill (copy previous row's value)</span>
+df.<span class="m">fillna</span>(method=<span class="s">"bfill"</span>)      <span class="c"># Backward fill</span>
+
+<span class="c"># ── In-place vs new DataFrame ─────────────────────────</span>
+df_clean = df.<span class="m">dropna</span>()         <span class="c"># Returns a new DataFrame</span>
+df.<span class="m">dropna</span>(inplace=<span class="k">True</span>)       <span class="c"># Modifies df directly</span></pre>
+    </div>
+  </div>
+
+  <!-- DUPLICATES -->
+  <div class="section" id="duplicates">
+    <h2>Removing Duplicates</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Check for duplicate rows</span>
+df.<span class="m">duplicated</span>()              <span class="c"># True for every duplicate row</span>
+df.<span class="m">duplicated</span>().<span class="m">sum</span>()        <span class="c"># Count of duplicate rows</span>
+
+<span class="c"># Remove duplicates</span>
+df.<span class="m">drop_duplicates</span>()                   <span class="c"># Drop fully duplicate rows</span>
+df.<span class="m">drop_duplicates</span>(subset=[<span class="s">"email"</span>])  <span class="c"># Drop rows where email is repeated</span>
+df.<span class="m">drop_duplicates</span>(keep=<span class="s">"last"</span>)      <span class="c"># Keep last occurrence (default: "first")</span></pre>
+    </div>
+  </div>
+
+  <!-- DTYPES -->
+  <div class="section" id="dtypes">
+    <h2>Data Types</h2>
+    <p>pandas assigns a data type to each column. Wrong types cause errors and slow performance. Common types: <code>int64</code>, <code>float64</code>, <code>object</code> (string), <code>bool</code>, <code>datetime64</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Check types</span>
+df.<span class="m">dtypes</span>
+
+<span class="c"># Convert types</span>
+df[<span class="s">"salary"</span>] = df[<span class="s">"salary"</span>].<span class="m">astype</span>(<span class="f">float</span>)
+df[<span class="s">"years"</span>]  = df[<span class="s">"years"</span>].<span class="m">astype</span>(<span class="f">int</span>)
+df[<span class="s">"active"</span>] = df[<span class="s">"active"</span>].<span class="m">astype</span>(<span class="f">bool</span>)
+
+<span class="c"># Convert a column that might have errors (use errors="coerce")</span>
+<span class="c"># Anything that can't convert becomes NaN</span>
+df[<span class="s">"revenue"</span>] = pd.<span class="f">to_numeric</span>(df[<span class="s">"revenue"</span>], errors=<span class="s">"coerce"</span>)
+
+<span class="c"># Convert a string column to datetime</span>
+df[<span class="s">"hire_date"</span>] = pd.<span class="f">to_datetime</span>(df[<span class="s">"hire_date"</span>])</pre>
+    </div>
+  </div>
+
+  <!-- RENAME & DROP -->
+  <div class="section" id="rename">
+    <h2>Rename &amp; Drop Columns</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Rename specific columns</span>
+df = df.<span class="m">rename</span>(columns={<span class="s">"name"</span>: <span class="s">"full_name"</span>, <span class="s">"dept"</span>: <span class="s">"department"</span>})
+
+<span class="c"># Rename all columns at once (must match count)</span>
+df.columns = [<span class="s">"full_name"</span>, <span class="s">"department"</span>, <span class="s">"salary"</span>, <span class="s">"years"</span>]
+
+<span class="c"># Lowercase all column names (very handy!)</span>
+df.columns = df.columns.<span class="m">str</span>.<span class="m">lower</span>()
+
+<span class="c"># Drop columns</span>
+df = df.<span class="m">drop</span>(columns=[<span class="s">"years"</span>])
+
+<span class="c"># Drop rows by index</span>
+df = df.<span class="m">drop</span>(index=[<span class="n">0</span>, <span class="n">3</span>])
+
+<span class="c"># Reset the index after dropping rows</span>
+df = df.<span class="m">reset_index</span>(drop=<span class="k">True</span>)</pre>
+    </div>
+  </div>
+
+  <!-- SORT & RANK -->
+  <div class="section" id="sort">
+    <h2>Sort &amp; Rank</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Sort by one column (ascending by default)</span>
+df.<span class="m">sort_values</span>(<span class="s">"salary"</span>)
+
+<span class="c"># Sort descending</span>
+df.<span class="m">sort_values</span>(<span class="s">"salary"</span>, ascending=<span class="k">False</span>)
+
+<span class="c"># Sort by multiple columns</span>
+df.<span class="m">sort_values</span>([<span class="s">"dept"</span>, <span class="s">"salary"</span>], ascending=[<span class="k">True</span>, <span class="k">False</span>])
+
+<span class="c"># Add a rank column (1 = highest salary)</span>
+df[<span class="s">"salary_rank"</span>] = df[<span class="s">"salary"</span>].<span class="m">rank</span>(ascending=<span class="k">False</span>)
+
+<span class="c"># Sort by index</span>
+df.<span class="m">sort_index</span>()</pre>
+    </div>
+  </div>
+
+  <!-- GROUPBY -->
+  <div class="section" id="groupby">
+    <h2>GroupBy — Aggregate by Category</h2>
+    <p><code>groupby()</code> is one of pandas' most powerful features. It splits the data by a category, applies a function to each group, and combines the results.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Average salary per department</span>
+df.<span class="m">groupby</span>(<span class="s">"dept"</span>)[<span class="s">"salary"</span>].<span class="m">mean</span>()
+
+<span class="c"># Multiple stats at once</span>
+df.<span class="m">groupby</span>(<span class="s">"dept"</span>)[<span class="s">"salary"</span>].<span class="m">agg</span>([<span class="s">"mean"</span>, <span class="s">"min"</span>, <span class="s">"max"</span>, <span class="s">"count"</span>])
+
+<span class="c"># Different stat per column</span>
+df.<span class="m">groupby</span>(<span class="s">"dept"</span>).<span class="m">agg</span>({
+    <span class="s">"salary"</span>: <span class="s">"mean"</span>,
+    <span class="s">"years"</span>:  <span class="s">"sum"</span>,
+    <span class="s">"name"</span>:   <span class="s">"count"</span>
+})
+
+<span class="c"># Group by multiple columns</span>
+df.<span class="m">groupby</span>([<span class="s">"dept"</span>, <span class="s">"location"</span>])[<span class="s">"salary"</span>].<span class="m">mean</span>()
+
+<span class="c"># Size of each group</span>
+df.<span class="m">groupby</span>(<span class="s">"dept"</span>).<span class="m">size</span>()
+
+<span class="c"># Reset index so dept becomes a regular column again</span>
+result = df.<span class="m">groupby</span>(<span class="s">"dept"</span>)[<span class="s">"salary"</span>].<span class="m">mean</span>().<span class="m">reset_index</span>()</pre>
+    </div>
+  </div>
+
+  <!-- APPLY -->
+  <div class="section" id="apply">
+    <h2>Apply Custom Functions</h2>
+    <p><code>apply()</code> lets you run any function — built-in or your own — on rows or columns.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Apply a built-in function to a column</span>
+df[<span class="s">"name_upper"</span>] = df[<span class="s">"name"</span>].<span class="m">apply</span>(<span class="f">str</span>.<span class="m">upper</span>)
+
+<span class="c"># Apply a lambda (short inline function)</span>
+df[<span class="s">"salary_k"</span>] = df[<span class="s">"salary"</span>].<span class="m">apply</span>(<span class="k">lambda</span> x: x / <span class="n">1000</span>)
+
+<span class="c"># Apply your own custom function</span>
+<span class="k">def</span> <span class="f">salary_band</span>(salary):
+    <span class="k">if</span> salary >= <span class="n">90000</span>:
+        <span class="k">return</span> <span class="s">"Senior"</span>
+    <span class="k">elif</span> salary >= <span class="n">70000</span>:
+        <span class="k">return</span> <span class="s">"Mid"</span>
+    <span class="k">else</span>:
+        <span class="k">return</span> <span class="s">"Junior"</span>
+
+df[<span class="s">"band"</span>] = df[<span class="s">"salary"</span>].<span class="m">apply</span>(salary_band)
+
+<span class="c"># Apply across the whole row (axis=1)</span>
+df[<span class="s">"summary"</span>] = df.<span class="m">apply</span>(
+    <span class="k">lambda</span> row: <span class="s">f"</span><span class="p">{</span>row[<span class="s">'name'</span>]<span class="p">}</span><span class="s"> in </span><span class="p">{</span>row[<span class="s">'dept'</span>]<span class="p">}</span><span class="s">"</span>,
+    axis=<span class="n">1</span>
+)</pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-label">💡 Performance tip</div>
+      <p>For simple math operations, avoid <code>apply()</code> and use vectorized operations instead — they're 10–100x faster: <code>df["salary"] * 1.1</code> is much faster than <code>df["salary"].apply(lambda x: x * 1.1)</code>.</p>
+    </div>
+  </div>
+
+  <!-- MERGE & JOIN -->
+  <div class="section" id="merge">
+    <h2>Merge &amp; Join DataFrames</h2>
+    <p>Combine two DataFrames — just like SQL JOIN. The most important function here is <code>pd.merge()</code>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Two DataFrames to combine</span>
+employees = pd.<span class="t">DataFrame</span>({
+    <span class="s">"emp_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>],
+    <span class="s">"name"</span>:   [<span class="s">"Alice"</span>, <span class="s">"Bob"</span>, <span class="s">"Carol"</span>]
+})
+
+salaries = pd.<span class="t">DataFrame</span>({
+    <span class="s">"emp_id"</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">4</span>],
+    <span class="s">"salary"</span>: [<span class="n">72000</span>, <span class="n">95000</span>, <span class="n">61000</span>]
+})
+
+<span class="c"># INNER JOIN — only rows matching in both</span>
+pd.<span class="f">merge</span>(employees, salaries, on=<span class="s">"emp_id"</span>, how=<span class="s">"inner"</span>)
+
+<span class="c"># LEFT JOIN — all employees, NaN if no salary found</span>
+pd.<span class="f">merge</span>(employees, salaries, on=<span class="s">"emp_id"</span>, how=<span class="s">"left"</span>)
+
+<span class="c"># RIGHT JOIN — all salaries, NaN if no employee found</span>
+pd.<span class="f">merge</span>(employees, salaries, on=<span class="s">"emp_id"</span>, how=<span class="s">"right"</span>)
+
+<span class="c"># OUTER JOIN — all rows from both, NaN for gaps</span>
+pd.<span class="f">merge</span>(employees, salaries, on=<span class="s">"emp_id"</span>, how=<span class="s">"outer"</span>)
+
+<span class="c"># Stack DataFrames vertically (same columns)</span>
+combined = pd.<span class="f">concat</span>([df1, df2], ignore_index=<span class="k">True</span>)</pre>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="section" id="stats">
+    <h2>Summary Statistics</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Describe all numeric columns</span>
+df.<span class="m">describe</span>()
+
+<span class="c"># Individual stats</span>
+df[<span class="s">"salary"</span>].<span class="m">mean</span>()      <span class="c"># Average</span>
+df[<span class="s">"salary"</span>].<span class="m">median</span>()    <span class="c"># Median (middle value)</span>
+df[<span class="s">"salary"</span>].<span class="m">std</span>()       <span class="c"># Standard deviation</span>
+df[<span class="s">"salary"</span>].<span class="m">sum</span>()       <span class="c"># Total</span>
+df[<span class="s">"salary"</span>].<span class="m">min</span>()       <span class="c"># Minimum</span>
+df[<span class="s">"salary"</span>].<span class="m">max</span>()       <span class="c"># Maximum</span>
+df[<span class="s">"salary"</span>].<span class="m">count</span>()     <span class="c"># Non-NaN count</span>
+df[<span class="s">"dept"</span>].<span class="m">value_counts</span>() <span class="c"># Frequency of each category</span>
+df[<span class="s">"salary"</span>].<span class="m">quantile</span>(<span class="n">0.75</span>)  <span class="c"># 75th percentile</span>
+
+<span class="c"># Correlation between numeric columns</span>
+df.<span class="m">corr</span>()
+
+<span class="c"># Add a cumulative sum column</span>
+df[<span class="s">"running_total"</span>] = df[<span class="s">"salary"</span>].<span class="m">cumsum</span>()</pre>
+    </div>
+  </div>
+
+  <!-- PIVOT -->
+  <div class="section" id="pivot">
+    <h2>Pivot Tables</h2>
+    <p>Pivot tables summarize data across two categories — like an Excel pivot table.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Average salary by dept and year band</span>
+pivot = df.<span class="m">pivot_table</span>(
+    values=<span class="s">"salary"</span>,          <span class="c"># What to aggregate</span>
+    index=<span class="s">"dept"</span>,             <span class="c"># Rows</span>
+    columns=<span class="s">"band"</span>,           <span class="c"># Columns</span>
+    aggfunc=<span class="s">"mean"</span>,           <span class="c"># How to aggregate</span>
+    fill_value=<span class="n">0</span>              <span class="c"># Replace NaN with 0</span>
+)
+<span class="f">print</span>(pivot)
+
+<span class="c"># Simple cross-tab: count occurrences</span>
+pd.<span class="f">crosstab</span>(df[<span class="s">"dept"</span>], df[<span class="s">"band"</span>])</pre>
+    </div>
+  </div>
+
+  <!-- STRINGS -->
+  <div class="section" id="strings">
+    <h2>String Operations</h2>
+    <p>Use the <code>.str</code> accessor to apply string methods to an entire column at once:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Case conversion</span>
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">upper</span>()
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">lower</span>()
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">title</span>()      <span class="c"># Title Case</span>
+
+<span class="c"># Strip whitespace</span>
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">strip</span>()
+
+<span class="c"># Check contents</span>
+df[<span class="s">"email"</span>].<span class="m">str</span>.<span class="m">contains</span>(<span class="s">"@gmail"</span>)
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">startswith</span>(<span class="s">"A"</span>)
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">endswith</span>(<span class="s">"son"</span>)
+
+<span class="c"># Length of each string</span>
+df[<span class="s">"name"</span>].<span class="m">str</span>.<span class="m">len</span>()
+
+<span class="c"># Replace text</span>
+df[<span class="s">"dept"</span>].<span class="m">str</span>.<span class="m">replace</span>(<span class="s">"Sales"</span>, <span class="s">"Revenue"</span>)
+
+<span class="c"># Split a column into multiple columns</span>
+df[[<span class="s">"first"</span>, <span class="s">"last"</span>]] = df[<span class="s">"full_name"</span>].<span class="m">str</span>.<span class="m">split</span>(<span class="s">" "</span>, expand=<span class="k">True</span>)</pre>
+    </div>
+  </div>
+
+  <!-- DATES -->
+  <div class="section" id="dates">
+    <h2>Dates &amp; Times</h2>
+    <p>pandas has excellent support for time series data. Always convert date columns with <code>pd.to_datetime()</code> first.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Parse a string column as dates</span>
+df[<span class="s">"hire_date"</span>] = pd.<span class="f">to_datetime</span>(df[<span class="s">"hire_date"</span>])
+
+<span class="c"># Extract date parts using .dt accessor</span>
+df[<span class="s">"year"</span>]    = df[<span class="s">"hire_date"</span>].<span class="m">dt</span>.<span class="m">year</span>
+df[<span class="s">"month"</span>]   = df[<span class="s">"hire_date"</span>].<span class="m">dt</span>.<span class="m">month</span>
+df[<span class="s">"day"</span>]     = df[<span class="s">"hire_date"</span>].<span class="m">dt</span>.<span class="m">day</span>
+df[<span class="s">"weekday"</span>] = df[<span class="s">"hire_date"</span>].<span class="m">dt</span>.<span class="m">day_name</span>()  <span class="c"># e.g. "Monday"</span>
+
+<span class="c"># Calculate time differences</span>
+<span class="k">import</span> pandas <span class="k">as</span> pd
+today = pd.<span class="f">Timestamp</span>(<span class="s">"today"</span>)
+df[<span class="s">"days_since_hire"</span>] = (today - df[<span class="s">"hire_date"</span>]).<span class="m">dt</span>.<span class="m">days</span>
+
+<span class="c"># Filter by date range</span>
+mask = (df[<span class="s">"hire_date"</span>] >= <span class="s">"2020-01-01"</span>) & (df[<span class="s">"hire_date"</span>] <= <span class="s">"2023-12-31"</span>)
+df[mask]
+
+<span class="c"># Resample time series data (e.g., monthly totals)</span>
+df.<span class="m">set_index</span>(<span class="s">"hire_date"</span>).<span class="m">resample</span>(<span class="s">"M"</span>)[<span class="s">"salary"</span>].<span class="m">sum</span>()</pre>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="section" id="export">
+    <h2>Exporting Data</h2>
+    <p>Save your cleaned or analyzed DataFrame back to a file:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-label">python</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+      <pre><span class="c"># Save to CSV</span>
+df.<span class="m">to_csv</span>(<span class="s">"output.csv"</span>, index=<span class="k">False</span>)   <span class="c"># index=False skips the row numbers</span>
+
+<span class="c"># Save to Excel</span>
+df.<span class="m">to_excel</span>(<span class="s">"output.xlsx"</span>, index=<span class="k">False</span>, sheet_name=<span class="s">"Results"</span>)
+
+<span class="c"># Save multiple DataFrames to separate Excel sheets</span>
+<span class="k">with</span> pd.<span class="t">ExcelWriter</span>(<span class="s">"multi_sheet.xlsx"</span>) <span class="k">as</span> writer:
+    df_sales.<span class="m">to_excel</span>(writer, sheet_name=<span class="s">"Sales"</span>, index=<span class="k">False</span>)
+    df_hr.<span class="m">to_excel</span>(writer, sheet_name=<span class="s">"HR"</span>, index=<span class="k">False</span>)
+
+<span class="c"># Save to JSON</span>
+df.<span class="m">to_json</span>(<span class="s">"output.json"</span>, orient=<span class="s">"records"</span>)
+
+<span class="c"># Print as a nicely formatted string</span>
+<span class="f">print</span>(df.<span class="m">to_string</span>())</pre>
+    </div>
+  </div>
+
+  <!-- CHEATSHEET -->
+  <div class="section" id="cheatsheet">
+    <h2>Quick Reference Cheatsheet</h2>
+
+    <table class="ref-table">
+      <thead><tr><th>Method</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td>pd.read_csv("f.csv")</td><td><strong>Load</strong> a CSV file into a DataFrame</td></tr>
+        <tr><td>df.head() / df.tail()</td><td><strong>Preview</strong> first / last rows</td></tr>
+        <tr><td>df.info()</td><td><strong>Summary</strong>: columns, types, non-null counts</td></tr>
+        <tr><td>df.describe()</td><td><strong>Stats</strong>: mean, std, min, max per column</td></tr>
+        <tr><td>df["col"]</td><td><strong>Select</strong> one column (returns Series)</td></tr>
+        <tr><td>df[["a","b"]]</td><td><strong>Select</strong> multiple columns (returns DataFrame)</td></tr>
+        <tr><td>df[df["col"] > 5]</td><td><strong>Filter</strong> rows by condition</td></tr>
+        <tr><td>df.loc[r, c]</td><td><strong>Select</strong> by label</td></tr>
+        <tr><td>df.iloc[r, c]</td><td><strong>Select</strong> by position</td></tr>
+        <tr><td>df.isnull().sum()</td><td><strong>Count</strong> missing values per column</td></tr>
+        <tr><td>df.dropna()</td><td><strong>Remove</strong> rows with missing values</td></tr>
+        <tr><td>df.fillna(0)</td><td><strong>Fill</strong> missing values with 0</td></tr>
+        <tr><td>df.drop_duplicates()</td><td><strong>Remove</strong> duplicate rows</td></tr>
+        <tr><td>df.rename(columns={…})</td><td><strong>Rename</strong> columns</td></tr>
+        <tr><td>df.sort_values("col")</td><td><strong>Sort</strong> rows by column</td></tr>
+        <tr><td>df.groupby("col").agg()</td><td><strong>Group</strong> and aggregate</td></tr>
+        <tr><td>df["col"].apply(fn)</td><td><strong>Apply</strong> a function to a column</td></tr>
+        <tr><td>pd.merge(df1, df2)</td><td><strong>Join</strong> two DataFrames</td></tr>
+        <tr><td>pd.concat([df1, df2])</td><td><strong>Stack</strong> DataFrames vertically</td></tr>
+        <tr><td>df.pivot_table()</td><td><strong>Pivot</strong> table summary</td></tr>
+        <tr><td>df["col"].str.upper()</td><td><strong>String</strong> operations on a column</td></tr>
+        <tr><td>df["col"].dt.year</td><td><strong>Extract</strong> year from datetime column</td></tr>
+        <tr><td>df.to_csv("out.csv")</td><td><strong>Export</strong> to CSV file</td></tr>
+        <tr><td>df.to_excel("out.xlsx")</td><td><strong>Export</strong> to Excel file</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+</div>
+
+<script>
+function setActive(el) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// Sync sidebar nav with scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      document.querySelectorAll('.nav-link').forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

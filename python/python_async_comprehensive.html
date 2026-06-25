@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Async / Await — Complete Tutorial</title>
+<style>
+/* ── Design tokens ── */
+:root {
+  --bg:        #0d0f18;
+  --surface:   #13161f;
+  --surface2:  #1c2030;
+  --surface3:  #242840;
+  --border:    #2a2f4a;
+  --border2:   #3a4060;
+
+  --teal:      #00d4aa;
+  --teal-dim:  rgba(0,212,170,.12);
+  --violet:    #a78bfa;
+  --violet-dim:rgba(167,139,250,.12);
+  --amber:     #fbbf24;
+  --amber-dim: rgba(251,191,36,.10);
+  --rose:      #fb7185;
+  --rose-dim:  rgba(251,113,133,.10);
+  --sky:       #38bdf8;
+
+  --text:      #dde3f0;
+  --text2:     #8b95b0;
+  --text3:     #555e7a;
+
+  --code-bg:   #0a0c14;
+  --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+
+  --radius:    10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.75;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ══ SIDEBAR ══ */
+#sidebar {
+  width: 270px;
+  min-width: 270px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-header {
+  padding: 28px 22px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header .eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--teal);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.sidebar-header h1 {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.nav-group-label {
+  padding: 18px 22px 4px;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text3);
+  font-weight: 700;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 22px;
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 13px;
+  border-left: 2px solid transparent;
+  transition: color .14s, background .14s, border-color .14s;
+  cursor: pointer;
+}
+.nav-link:hover { color: var(--text); background: var(--surface2); }
+.nav-link.active { color: var(--teal); border-left-color: var(--teal); background: var(--teal-dim); }
+.nav-link .nav-num {
+  font-size: 10px;
+  color: var(--text3);
+  min-width: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.nav-link.active .nav-num { color: var(--teal); }
+
+/* ══ MAIN ══ */
+#main {
+  flex: 1;
+  min-width: 0;
+  padding: 52px 60px 80px;
+  max-width: 880px;
+}
+
+/* ── Section pages ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Typography ── */
+.page-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--teal);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.page-subtitle {
+  color: var(--text2);
+  font-size: 15px;
+  margin-bottom: 36px;
+  max-width: 620px;
+  line-height: 1.7;
+}
+
+h2 { font-size: 1.25rem; font-weight: 700; color: var(--text); margin: 44px 0 14px; }
+h3 { font-size: 1rem; font-weight: 700; color: var(--violet); margin: 28px 0 10px; }
+h4 { font-size: .9rem; font-weight: 600; color: var(--text2); margin: 20px 0 8px; }
+
+p { margin-bottom: 14px; color: var(--text); }
+ul, ol { margin: 8px 0 16px 22px; }
+li { margin-bottom: 7px; color: var(--text); }
+strong { color: var(--text); font-weight: 600; }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--surface3); padding: 2px 6px; border-radius: 4px; color: var(--teal); }
+
+hr.divider { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+/* ── Code blocks ── */
+.codeblock {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 18px 0;
+  overflow: hidden;
+}
+.codeblock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.lang-tag {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: .5px;
+}
+.lang-py     { color: var(--sky); }
+.lang-out    { color: var(--teal); }
+.lang-shell  { color: var(--amber); }
+.lang-bad    { color: var(--rose); }
+.lang-good   { color: var(--teal); }
+
+.codeblock-filename {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+.copy-btn {
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: color .14s, border-color .14s;
+}
+.copy-btn:hover { color: var(--teal); border-color: var(--teal); }
+
+pre {
+  padding: 18px 20px;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.7;
+  font-family: var(--font-mono);
+}
+pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+/* Syntax colours */
+.k  { color: #c792ea; }          /* keyword */
+.fn { color: #82aaff; }          /* function */
+.s  { color: #c3e88d; }          /* string */
+.n  { color: #f78c6c; }          /* number */
+.c  { color: #4a5568; font-style: italic; } /* comment */
+.bi { color: var(--teal); }      /* builtin */
+.cl { color: var(--amber); }     /* class */
+.op { color: #89ddff; }          /* operator */
+.de { color: #ff9cac; }          /* decorator */
+
+/* ── Callout cards ── */
+.callout {
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin: 20px 0;
+  border: 1px solid;
+}
+.callout-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+}
+.callout.info    { background: var(--violet-dim); border-color: rgba(167,139,250,.3); }
+.callout.info    .callout-header { color: var(--violet); }
+.callout.tip     { background: var(--teal-dim);   border-color: rgba(0,212,170,.25); }
+.callout.tip     .callout-header { color: var(--teal); }
+.callout.warn    { background: var(--amber-dim);  border-color: rgba(251,191,36,.25); }
+.callout.warn    .callout-header { color: var(--amber); }
+.callout.danger  { background: var(--rose-dim);   border-color: rgba(251,113,133,.25); }
+.callout.danger  .callout-header { color: var(--rose); }
+
+/* ── Side-by-side comparison ── */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 18px 0;
+}
+@media(max-width:720px) { .split { grid-template-columns: 1fr; } }
+
+/* ── Concept diagram / flow ── */
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 18px 0;
+}
+.flow-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  line-height: 1.3;
+  text-align: center;
+}
+.flow-box.t { border-color: var(--teal);   color: var(--teal); }
+.flow-box.v { border-color: var(--violet); color: var(--violet); }
+.flow-box.a { border-color: var(--amber);  color: var(--amber); }
+.flow-arr { color: var(--text3); font-size: 18px; user-select: none; }
+
+/* ── Table ── */
+.data-table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13.5px; }
+.data-table th {
+  background: var(--surface2);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text2);
+  font-weight: 700;
+}
+.data-table td {
+  padding: 11px 16px;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+.data-table tr:hover td { background: var(--surface2); }
+.data-table td:first-child { font-family: var(--font-mono); font-size: 13px; color: var(--teal); }
+
+/* ── Timeline ── */
+.timeline { margin: 20px 0; }
+.tl-item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 24px;
+}
+.tl-item:last-child { padding-bottom: 0; }
+.tl-left { display: flex; flex-direction: column; align-items: center; }
+.tl-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.tl-line {
+  width: 1px;
+  flex: 1;
+  background: var(--border);
+  margin-top: 4px;
+}
+.tl-item:last-child .tl-line { display: none; }
+.tl-body { padding-top: 2px; }
+.tl-title { font-weight: 700; color: var(--text); margin-bottom: 4px; font-size: 14px; }
+.tl-desc { color: var(--text2); font-size: 13.5px; }
+
+/* ── Quiz ── */
+.quiz { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; margin: 28px 0; }
+.quiz-q { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+.quiz-q .q-label { display: inline-block; background: var(--amber-dim); color: var(--amber); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-bottom: 8px; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 11px 16px;
+  cursor: pointer;
+  font-size: 13.5px;
+  transition: border-color .14s, background .14s;
+  user-select: none;
+}
+.quiz-opt:hover { border-color: var(--border2); background: var(--surface3); }
+.quiz-opt.correct { border-color: var(--teal); background: var(--teal-dim); color: var(--teal); pointer-events: none; }
+.quiz-opt.wrong   { border-color: var(--rose); background: var(--rose-dim); color: var(--rose); pointer-events: none; }
+.quiz-opt.locked  { pointer-events: none; }
+.quiz-fb { margin-top: 14px; font-size: 13.5px; color: var(--text2); display: none; padding: 12px 16px; background: var(--surface); border-radius: 7px; border: 1px solid var(--border); }
+
+/* ── Progress bar ── */
+#progress-wrap { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 100; }
+#progress-bar  { height: 100%; background: var(--teal); width: 0; transition: width .3s; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── Inline badge ── */
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.badge.new { background: var(--teal-dim); color: var(--teal); border: 1px solid rgba(0,212,170,.3); }
+
+/* ── Nav footer ── */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 56px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+.page-nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  text-decoration: none;
+  transition: border-color .14s;
+  min-width: 160px;
+}
+.page-nav-btn:hover { border-color: var(--teal); }
+.page-nav-btn .pn-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text3); }
+.page-nav-btn .pn-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.page-nav-btn.right { text-align: right; margin-left: auto; }
+</style>
+</head>
+<body>
+
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="eyebrow">Complete Tutorial</div>
+    <h1>Python<br>Async / Await</h1>
+  </div>
+
+  <div class="nav-group-label">Getting Started</div>
+  <div class="nav-link active" data-page="p0"><span class="nav-num">0</span> What is Async Programming?</div>
+  <div class="nav-link" data-page="p1"><span class="nav-num">1</span> Synchronous vs Asynchronous</div>
+  <div class="nav-link" data-page="p2"><span class="nav-num">2</span> The Event Loop</div>
+
+  <div class="nav-group-label">Core Language</div>
+  <div class="nav-link" data-page="p3"><span class="nav-num">3</span> Coroutines & async def</div>
+  <div class="nav-link" data-page="p4"><span class="nav-num">4</span> The await Keyword</div>
+  <div class="nav-link" data-page="p5"><span class="nav-num">5</span> asyncio.run()</div>
+  <div class="nav-link" data-page="p6"><span class="nav-num">6</span> async with & async for</div>
+
+  <div class="nav-group-label">Concurrency</div>
+  <div class="nav-link" data-page="p7"><span class="nav-num">7</span> gather() — Run in Parallel</div>
+  <div class="nav-link" data-page="p8"><span class="nav-num">8</span> Tasks & create_task()</div>
+  <div class="nav-link" data-page="p9"><span class="nav-num">9</span> Timeouts & Cancellation</div>
+  <div class="nav-link" data-page="p10"><span class="nav-num">10</span> Queues & Synchronization</div>
+
+  <div class="nav-group-label">Real World</div>
+  <div class="nav-link" data-page="p11"><span class="nav-num">11</span> Async HTTP (aiohttp)</div>
+  <div class="nav-link" data-page="p12"><span class="nav-num">12</span> Async Files & Databases</div>
+  <div class="nav-link" data-page="p13"><span class="nav-num">13</span> Running Blocking Code</div>
+  <div class="nav-link" data-page="p14"><span class="nav-num">14</span> Common Pitfalls</div>
+  <div class="nav-link" data-page="p15"><span class="nav-num">15</span> Quick Reference</div>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<main id="main">
+
+<!-- ─── PAGE 0: What is Async? ─── -->
+<div class="page active" id="p0">
+  <div class="page-eyebrow">Introduction</div>
+  <div class="page-title">What is Async Programming?</div>
+  <div class="page-subtitle">Before writing a single line of async code, you need to understand <em>why</em> it exists and what problem it solves.</div>
+
+  <h2>The Problem: Waiting Does Nothing</h2>
+  <p>Almost every real program spends time <strong>waiting</strong>: waiting for a file to load from disk, for a database to return results, for an HTTP server to respond. During that wait, the CPU is idle — it could be doing useful work, but instead it just sits there.</p>
+  <p>This is called <strong>I/O-bound waiting</strong>. It's the core problem that async programming solves.</p>
+
+  <div class="callout info">
+    <div class="callout-header">💡 Two Kinds of Bottlenecks</div>
+    <p style="margin-bottom:8px"><strong>I/O-bound</strong> — Your program waits for network, disk, or database. The CPU is mostly idle. This is where async shines.</p>
+    <p style="margin:0"><strong>CPU-bound</strong> — Your program does heavy computation: image processing, ML, cryptography. The CPU runs at full speed. Async does <em>not</em> help here — you need multiprocessing.</p>
+  </div>
+
+  <h2>What Does Async Actually Do?</h2>
+  <p>Async programming lets a single thread <strong>interleave multiple operations</strong>. Instead of blocking (doing nothing) while waiting for I/O, the program says "while I'm waiting for this, go do something else — and come back when it's ready."</p>
+
+  <div class="flow">
+    <div class="flow-box t">Start request A</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box a">Waiting for A<br><span style="font-size:10px;font-weight:400;">(yields control)</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box v">Start request B</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box a">Waiting for B</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box t">A done → resume</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box v">B done → resume</div>
+  </div>
+
+  <p>Both operations overlap in time. If each takes 1 second, they finish in ~1 second total instead of 2.</p>
+
+  <h2>Python's Approach: asyncio</h2>
+  <p>Python implements async programming through the <code>asyncio</code> module (built into the standard library since Python 3.4, and matured significantly in 3.7+). The syntax uses two keywords:</p>
+
+  <div class="split">
+    <div class="callout tip">
+      <div class="callout-header">async def</div>
+      <p style="margin:0">Declares a <strong>coroutine function</strong> — a function that can pause and resume. Calling it returns a coroutine object; it doesn't run yet.</p>
+    </div>
+    <div class="callout tip">
+      <div class="callout-header">await</div>
+      <p style="margin:0">Inside an <code>async def</code>, suspends the current coroutine and yields control until the awaited thing completes. This is the pause point.</p>
+    </div>
+  </div>
+
+  <h2>Python Version Requirements</h2>
+  <table class="data-table">
+    <thead><tr><th>Feature</th><th>Minimum Python</th></tr></thead>
+    <tbody>
+      <tr><td>async / await syntax</td><td>Python 3.5</td></tr>
+      <tr><td>asyncio.run()</td><td>Python 3.7</td></tr>
+      <tr><td>asyncio.gather() with typing</td><td>Python 3.8</td></tr>
+      <tr><td>asyncio.timeout() context manager</td><td>Python 3.11</td></tr>
+      <tr><td>TaskGroup</td><td>Python 3.11</td></tr>
+    </tbody>
+  </table>
+  <p style="color:var(--text2);font-size:13.5px;">This tutorial targets <strong>Python 3.10+</strong>. All examples run on 3.10 unless marked otherwise.</p>
+
+  <div class="page-nav">
+    <div></div>
+    <div class="page-nav-btn right" onclick="goTo('p1')">
+      <div class="pn-label">Next →</div>
+      <div class="pn-title">Sync vs Async</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PAGE 1: Sync vs Async ─── -->
+<div class="page" id="p1">
+  <div class="page-eyebrow">Chapter 1</div>
+  <div class="page-title">Synchronous vs Asynchronous</div>
+  <div class="page-subtitle">See the concrete difference in code — and in timing — between blocking and non-blocking programs.</div>
+
+  <h2>Synchronous Code: One Thing at a Time</h2>
+  <p>In synchronous (normal) Python, each line runs to completion before the next one starts. If line 3 blocks for 2 seconds, everything after it waits.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — synchronous</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> time
+
+<span class="k">def</span> <span class="fn">fetch_user</span>(user_id):
+    <span class="fn">print</span>(<span class="s">f"Fetching user </span>{user_id}<span class="s">..."</span>)
+    time.<span class="fn">sleep</span>(<span class="n">2</span>)          <span class="c"># simulates a 2-second network call</span>
+    <span class="k">return</span> <span class="s">f"User:</span>{user_id}<span class="s">"</span>
+
+<span class="k">def</span> <span class="fn">main</span>():
+    start = time.<span class="fn">time</span>()
+
+    u1 = <span class="fn">fetch_user</span>(<span class="n">1</span>)   <span class="c"># blocks for 2 seconds</span>
+    u2 = <span class="fn">fetch_user</span>(<span class="n">2</span>)   <span class="c"># then blocks for another 2 seconds</span>
+    u3 = <span class="fn">fetch_user</span>(<span class="n">3</span>)   <span class="c"># then another 2 seconds</span>
+
+    <span class="fn">print</span>(<span class="s">f"Got: </span>{u1}<span class="s">, </span>{u2}<span class="s">, </span>{u3}<span class="s">"</span>)
+    <span class="fn">print</span>(<span class="s">f"Total time: {time.time() - start:.1f}s"</span>)
+
+<span class="fn">main</span>()</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-out">Output</span></div>
+    <pre><code>Fetching user 1...
+Fetching user 2...
+Fetching user 3...
+Got: User:1, User:2, User:3
+Total time: 6.0s</code></pre>
+  </div>
+
+  <p>Six seconds — even though each fetch is independent and could have run at the same time. That's wasted time.</p>
+
+  <h2>Asynchronous Code: Interleaved Waiting</h2>
+  <p>Now the same program rewritten with async/await. The three fetches <em>overlap</em>:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — asynchronous</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, time
+
+<span class="k">async def</span> <span class="fn">fetch_user</span>(user_id):
+    <span class="fn">print</span>(<span class="s">f"Fetching user </span>{user_id}<span class="s">..."</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">2</span>)   <span class="c"># yields control; event loop runs others</span>
+    <span class="fn">print</span>(<span class="s">f"Done: user </span>{user_id}<span class="s">"</span>)
+    <span class="k">return</span> <span class="s">f"User:</span>{user_id}<span class="s">"</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    start = time.<span class="fn">time</span>()
+
+    <span class="c"># All three start immediately; waiting overlaps</span>
+    u1, u2, u3 = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch_user</span>(<span class="n">1</span>),
+        <span class="fn">fetch_user</span>(<span class="n">2</span>),
+        <span class="fn">fetch_user</span>(<span class="n">3</span>),
+    )
+
+    <span class="fn">print</span>(<span class="s">f"Got: </span>{u1}<span class="s">, </span>{u2}<span class="s">, </span>{u3}<span class="s">"</span>)
+    <span class="fn">print</span>(<span class="s">f"Total time: {time.time() - start:.1f}s"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-out">Output</span></div>
+    <pre><code>Fetching user 1...
+Fetching user 2...
+Fetching user 3...
+Done: user 1
+Done: user 2
+Done: user 3
+Got: User:1, User:2, User:3
+Total time: 2.0s</code></pre>
+  </div>
+
+  <p>Three fetches in 2 seconds instead of 6. The waiting time <strong>overlaps</strong> because all three are suspended at their <code>await</code> points simultaneously, and the event loop resumes each one when its wait is done.</p>
+
+  <div class="callout warn">
+    <div class="callout-header">⚠ Key Distinction: Concurrency ≠ Parallelism</div>
+    <p style="margin:0">The code above runs on <strong>one thread</strong>. It's not running three things at once in the CPU sense. It's <em>interleaving</em> waits — while one coroutine waits for I/O, another runs. True parallelism (multiple CPU cores) requires the <code>multiprocessing</code> module.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz-q">
+      <div class="q-label">Check your understanding</div>
+      You have 10 independent API calls, each taking 500ms. Roughly how long does the async version take?
+    </div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="doQuiz(this,false)">5000ms (5 seconds)</div>
+      <div class="quiz-opt" onclick="doQuiz(this,true)">~500ms (all overlap)</div>
+      <div class="quiz-opt" onclick="doQuiz(this,false)">250ms (twice as fast as one)</div>
+      <div class="quiz-opt" onclick="doQuiz(this,false)">It depends on the number of CPU cores</div>
+    </div>
+    <div class="quiz-fb">✅ Correct! When waiting is the bottleneck and all 10 calls start at once, they all <em>wait at the same time</em>. The total time is roughly the duration of the slowest single call — ~500ms.</div>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p0')"><div class="pn-label">← Back</div><div class="pn-title">Introduction</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p2')"><div class="pn-label">Next →</div><div class="pn-title">The Event Loop</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 2: Event Loop ─── -->
+<div class="page" id="p2">
+  <div class="page-eyebrow">Chapter 2</div>
+  <div class="page-title">The Event Loop</div>
+  <div class="page-subtitle">The engine that makes async Python work. Understanding it demystifies everything else.</div>
+
+  <h2>What Is the Event Loop?</h2>
+  <p>The event loop is a <strong>scheduler that runs on a single thread</strong>. It maintains a queue of coroutines and tasks that are ready to run, executes them one at a time, and watches for I/O completion events.</p>
+
+  <p>Its job, repeated endlessly:</p>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body"><div class="tl-title">Pick a ready coroutine from the queue</div><div class="tl-desc">If nothing is ready, wait until an I/O event fires.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body"><div class="tl-title">Run it until the next <code>await</code></div><div class="tl-desc">Coroutines run synchronously up to their first suspension point.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body"><div class="tl-title">Register what it's waiting for</div><div class="tl-desc">The OS kernel monitors the socket/file descriptor for completion.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body"><div class="tl-title">Move on to the next ready coroutine</div><div class="tl-desc">Other work proceeds while the previous coroutine waits.</div></div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div></div>
+      <div class="tl-body"><div class="tl-title">When I/O finishes, re-queue the waiting coroutine</div><div class="tl-desc">It resumes from exactly where it paused, with the result.</div></div>
+    </div>
+  </div>
+
+  <h2>Visualizing the Loop</h2>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — event loop in action</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">task_a</span>():
+    <span class="fn">print</span>(<span class="s">"A: start"</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">1</span>)   <span class="c"># A suspends; loop runs B</span>
+    <span class="fn">print</span>(<span class="s">"A: resumed after 1s"</span>)
+
+<span class="k">async def</span> <span class="fn">task_b</span>():
+    <span class="fn">print</span>(<span class="s">"B: start"</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.5</span>)  <span class="c"># B suspends; loop checks A</span>
+    <span class="fn">print</span>(<span class="s">"B: resumed after 0.5s"</span>)
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">await</span> asyncio.<span class="fn">gather</span>(<span class="fn">task_a</span>(), <span class="fn">task_b</span>())
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-out">Output — notice B resumes before A</span></div>
+    <pre><code>A: start
+B: start
+B: resumed after 0.5s
+A: resumed after 1s</code></pre>
+  </div>
+
+  <p>A and B both start. B's wait is shorter, so it resumes first. A resumes later. All on one thread, perfectly ordered by the event loop.</p>
+
+  <h2>One Loop Per Thread</h2>
+  <p>Python's asyncio uses <strong>one event loop per thread</strong>. You almost always run just one, created by <code>asyncio.run()</code>. You can introspect it:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">check</span>():
+    loop = asyncio.<span class="fn">get_running_loop</span>()
+    <span class="fn">print</span>(<span class="s">f"Loop type: </span>{<span class="fn">type</span>(loop).__name__}<span class="s">"</span>)
+    <span class="fn">print</span>(<span class="s">f"Is running: </span>{loop.<span class="bi">is_running</span>()}<span class="s">"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">check</span>())
+<span class="c"># Loop type: _UnixSelectorEventLoop   (on Linux/Mac)</span>
+<span class="c"># Loop type: ProactorEventLoop         (on Windows)</span>
+<span class="c"># Is running: True</span></code></pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-header">⚠ Never block the event loop</div>
+    <p style="margin:0">The entire async model collapses if you run a blocking operation (like <code>time.sleep()</code> or <code>requests.get()</code>) inside a coroutine. It freezes the loop completely — no other coroutines can run. Always use async-aware alternatives: <code>await asyncio.sleep()</code>, <code>aiohttp</code>, etc. More on this in Chapter 13.</p>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p1')"><div class="pn-label">← Back</div><div class="pn-title">Sync vs Async</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p3')"><div class="pn-label">Next →</div><div class="pn-title">Coroutines & async def</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 3: Coroutines ─── -->
+<div class="page" id="p3">
+  <div class="page-eyebrow">Chapter 3</div>
+  <div class="page-title">Coroutines & <code>async def</code></div>
+  <div class="page-subtitle">Coroutines are the foundation of Python's async model. Here's exactly what they are and how they behave.</div>
+
+  <h2>What Is a Coroutine?</h2>
+  <p>A <strong>coroutine</strong> is a function that can <em>pause</em> its execution midway, yield control to other code, and later <em>resume</em> from exactly where it paused — retaining all its local variables.</p>
+  <p>You create a coroutine function by prefixing <code>def</code> with <code>async</code>:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">greet</span>(name: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="k">return</span> <span class="s">f"Hello, </span>{name}<span class="s">!"</span>
+
+<span class="c"># Calling it does NOT execute the body — returns a coroutine object</span>
+coro = <span class="fn">greet</span>(<span class="s">"Alice"</span>)
+<span class="fn">print</span>(coro)         <span class="c"># &lt;coroutine object greet at 0x...&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(coro))   <span class="c"># &lt;class 'coroutine'&gt;</span>
+
+<span class="c"># To actually run it:</span>
+result = asyncio.<span class="fn">run</span>(coro)
+<span class="fn">print</span>(result)       <span class="c"># Hello, Alice!</span></code></pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-header">⚠ Common Beginner Mistake</div>
+    <p>Calling <code>greet("Alice")</code> looks like calling a normal function, but it returns a <strong>coroutine object</strong> — the body hasn't run at all. Python will even warn you: <em>RuntimeWarning: coroutine 'greet' was never awaited</em> if you forget to run it.</p>
+  </div>
+
+  <h2>The Coroutine Lifecycle</h2>
+  <div class="flow">
+    <div class="flow-box">greet("Alice")<br><span style="font-size:10px;color:var(--text2)">function call</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box a">Coroutine object<br><span style="font-size:10px;color:var(--text2)">not started</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box v">await / asyncio.run()<br><span style="font-size:10px;color:var(--text2)">scheduled</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box t">Running<br><span style="font-size:10px;color:var(--text2)">until await</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box a">Suspended<br><span style="font-size:10px;color:var(--text2)">at await</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box t">Done ✓<br><span style="font-size:10px;color:var(--text2)">returns value</span></div>
+  </div>
+
+  <h2>Coroutines Can Call Other Coroutines</h2>
+  <p>Use <code>await</code> inside a coroutine to call another coroutine. This is how you compose async code:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">get_user_id</span>(username: <span class="bi">str</span>) -> <span class="bi">int</span>:
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.3</span>)   <span class="c"># simulates DB lookup</span>
+    <span class="k">return</span> <span class="n">42</span>
+
+<span class="k">async def</span> <span class="fn">get_profile</span>(user_id: <span class="bi">int</span>) -> <span class="bi">dict</span>:
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.3</span>)   <span class="c"># simulates another DB lookup</span>
+    <span class="k">return</span> {<span class="s">"id"</span>: user_id, <span class="s">"name"</span>: <span class="s">"Alice"</span>, <span class="s">"role"</span>: <span class="s">"admin"</span>}
+
+<span class="k">async def</span> <span class="fn">load_user</span>(username: <span class="bi">str</span>) -> <span class="bi">dict</span>:
+    user_id = <span class="k">await</span> <span class="fn">get_user_id</span>(username)   <span class="c"># await another coroutine</span>
+    profile = <span class="k">await</span> <span class="fn">get_profile</span>(user_id)    <span class="c"># await another coroutine</span>
+    <span class="k">return</span> profile
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    user = <span class="k">await</span> <span class="fn">load_user</span>(<span class="s">"alice"</span>)
+    <span class="fn">print</span>(user)   <span class="c"># {'id': 42, 'name': 'Alice', 'role': 'admin'}</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>Type Annotations with Coroutines</h2>
+  <p>Use <code>Coroutine</code> or simply annotate the return type of the <em>value it produces</em> — Python infers the coroutine wrapper:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-py">Python</span></div>
+    <pre><code><span class="k">from</span> collections.abc <span class="k">import</span> <span class="cl">Coroutine</span>
+
+<span class="c"># These two are equivalent; the second is simpler and preferred</span>
+<span class="k">async def</span> <span class="fn">fetch</span>() -> <span class="bi">str</span>: ...       <span class="c"># preferred</span>
+<span class="k">async def</span> <span class="fn">fetch</span>() -> <span class="cl">Coroutine</span>[<span class="bi">None</span>, <span class="bi">None</span>, <span class="bi">str</span>]: ...  <span class="c"># verbose, rarely needed</span></code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p2')"><div class="pn-label">← Back</div><div class="pn-title">The Event Loop</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p4')"><div class="pn-label">Next →</div><div class="pn-title">The await Keyword</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 4: await ─── -->
+<div class="page" id="p4">
+  <div class="page-eyebrow">Chapter 4</div>
+  <div class="page-title">The <code>await</code> Keyword</div>
+  <div class="page-subtitle"><code>await</code> is the moment a coroutine pauses. Understanding exactly what it does — and what it can be used on — is essential.</div>
+
+  <h2>What <code>await</code> Does</h2>
+  <p>When Python executes <code>await expr</code>, three things happen:</p>
+  <ol>
+    <li>The current coroutine <strong>suspends</strong> — its local state is frozen in memory.</li>
+    <li>Control returns to the <strong>event loop</strong>, which can run other coroutines.</li>
+    <li>When the awaited operation finishes, the event loop <strong>resumes</strong> this coroutine with the result.</li>
+  </ol>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — await mechanics</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">compute</span>():
+    x = <span class="n">10</span>
+    <span class="fn">print</span>(<span class="s">f"x is </span>{x}<span class="s">, about to suspend"</span>)
+
+    <span class="c"># Suspends here. x = 10 is preserved in memory.</span>
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">1</span>)
+
+    <span class="c"># Resumes here. x is still 10.</span>
+    <span class="fn">print</span>(<span class="s">f"Resumed. x is still </span>{x}<span class="s">"</span>)
+    <span class="k">return</span> x * <span class="n">2</span>
+
+result = asyncio.<span class="fn">run</span>(<span class="fn">compute</span>())
+<span class="fn">print</span>(<span class="s">f"Result: </span>{result}<span class="s">"</span>)   <span class="c"># 20</span></code></pre>
+  </div>
+
+  <h2>What Can You <code>await</code>?</h2>
+  <p>You can <code>await</code> any <strong>awaitable</strong> object. There are three kinds:</p>
+  <table class="data-table">
+    <thead><tr><th>Awaitable type</th><th>Example</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Coroutine</td><td><code>await fetch(url)</code></td><td>Result of calling an <code>async def</code> function</td></tr>
+      <tr><td>asyncio.Task</td><td><code>await task</code></td><td>A coroutine scheduled to run concurrently</td></tr>
+      <tr><td>asyncio.Future</td><td><code>await future</code></td><td>Low-level placeholder for an eventual result</td></tr>
+    </tbody>
+  </table>
+  <p>Any object that implements <code>__await__</code> is also awaitable (used by library authors, rarely by application developers).</p>
+
+  <h2>await Only Works Inside async def</h2>
+  <div class="split">
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-bad">❌ SyntaxError</span></div>
+      <pre><code><span class="k">def</span> <span class="fn">sync_function</span>():
+    <span class="c"># await in a normal function</span>
+    result = <span class="k">await</span> <span class="fn">something</span>()
+    <span class="c"># SyntaxError!</span></code></pre>
+    </div>
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+      <pre><code><span class="k">async def</span> <span class="fn">async_function</span>():
+    <span class="c"># await inside async def</span>
+    result = <span class="k">await</span> <span class="fn">something</span>()
+    <span class="k">return</span> result  <span class="c"># works</span></code></pre>
+    </div>
+  </div>
+
+  <h2>Chained Awaits — Sequential Execution</h2>
+  <p>Multiple <code>await</code>s in a row run <strong>one after another</strong>. Use this when each step depends on the previous result:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — sequential awaits</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">process_order</span>(order_id: <span class="bi">int</span>):
+    <span class="c"># Step 1: validate (must complete before step 2)</span>
+    valid = <span class="k">await</span> <span class="fn">validate_order</span>(order_id)
+    <span class="k">if not</span> valid:
+        <span class="k">raise</span> <span class="cl">ValueError</span>(<span class="s">"Invalid order"</span>)
+
+    <span class="c"># Step 2: charge (uses result of step 1)</span>
+    payment_id = <span class="k">await</span> <span class="fn">charge_customer</span>(order_id)
+
+    <span class="c"># Step 3: dispatch (uses payment_id)</span>
+    tracking = <span class="k">await</span> <span class="fn">dispatch</span>(order_id, payment_id)
+
+    <span class="k">return</span> tracking</code></pre>
+  </div>
+
+  <p>Even though each step <em>suspends</em> at its <code>await</code>, from the perspective of this coroutine they appear sequential — exactly like reading normal synchronous code. That's the beauty of async/await syntax.</p>
+
+  <div class="quiz">
+    <div class="quiz-q">
+      <div class="q-label">Check your understanding</div>
+      What happens when Python reaches <code>await asyncio.sleep(2)</code>?
+    </div>
+    <div class="quiz-opts">
+      <div class="quiz-opt" onclick="doQuiz(this,false)">The entire program pauses for 2 seconds</div>
+      <div class="quiz-opt" onclick="doQuiz(this,false)">A new thread is created to wait</div>
+      <div class="quiz-opt" onclick="doQuiz(this,true)">The current coroutine suspends; the event loop runs other coroutines for 2 seconds</div>
+      <div class="quiz-opt" onclick="doQuiz(this,false)">Python raises a SyntaxError</div>
+    </div>
+    <div class="quiz-fb">✅ Exactly right! The coroutine suspends, freeing the event loop to run anything else that's ready. After 2 seconds, the event loop resumes this coroutine.</div>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p3')"><div class="pn-label">← Back</div><div class="pn-title">Coroutines</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p5')"><div class="pn-label">Next →</div><div class="pn-title">asyncio.run()</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 5: asyncio.run ─── -->
+<div class="page" id="p5">
+  <div class="page-eyebrow">Chapter 5</div>
+  <div class="page-title"><code>asyncio.run()</code></div>
+  <div class="page-subtitle">Every async program needs a single entry point. <code>asyncio.run()</code> is it.</div>
+
+  <h2>What <code>asyncio.run()</code> Does</h2>
+  <p><code>asyncio.run(coro)</code> does four things in order:</p>
+  <div class="timeline">
+    <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Creates a new event loop</div><div class="tl-desc">Allocates the event loop infrastructure for this thread.</div></div></div>
+    <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Runs the coroutine to completion</div><div class="tl-desc">Drives the event loop until <code>coro</code> returns or raises.</div></div></div>
+    <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Cancels any remaining tasks</div><div class="tl-desc">Cleans up background tasks that weren't explicitly awaited.</div></div></div>
+    <div class="tl-item"><div class="tl-left"><div class="tl-dot"></div></div><div class="tl-body"><div class="tl-title">Closes and destroys the loop</div><div class="tl-desc">Frees resources. Returns whatever the coroutine returned.</div></div></div>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — complete program structure</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">setup</span>():
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)
+    <span class="fn">print</span>(<span class="s">"Setup complete"</span>)
+
+<span class="k">async def</span> <span class="fn">teardown</span>():
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)
+    <span class="fn">print</span>(<span class="s">"Teardown complete"</span>)
+
+<span class="k">async def</span> <span class="fn">main</span>():          <span class="c"># ← top-level async entry point</span>
+    <span class="k">await</span> <span class="fn">setup</span>()
+    <span class="fn">print</span>(<span class="s">"Running application..."</span>)
+    <span class="k">await</span> <span class="fn">teardown</span>()
+
+<span class="c"># ── Program entry point ──────────────────────────────</span>
+<span class="k">if</span> __name__ <span class="op">==</span> <span class="s">"__main__"</span>:
+    asyncio.<span class="fn">run</span>(<span class="fn">main</span>())    <span class="c"># creates loop, runs main(), closes loop</span></code></pre>
+  </div>
+
+  <h2>Rules for <code>asyncio.run()</code></h2>
+  <div class="callout tip">
+    <div class="callout-header">✅ Best Practices</div>
+    <ul style="margin:0 0 0 18px">
+      <li>Call it <strong>exactly once</strong> in your program, at the top level.</li>
+      <li>Always pass it a coroutine object — not an already-running one.</li>
+      <li>Don't nest it: never call <code>asyncio.run()</code> inside an <code>async def</code>. Use <code>await</code> there.</li>
+    </ul>
+  </div>
+
+  <div class="split">
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-bad">❌ Wrong — nested run()</span></div>
+      <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    <span class="c"># Don't do this!</span>
+    asyncio.<span class="fn">run</span>(<span class="fn">helper</span>())
+    <span class="c"># RuntimeError: This event loop
+    # is already running</span></code></pre>
+    </div>
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+      <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    <span class="c"># Use await inside async</span>
+    <span class="k">await</span> <span class="fn">helper</span>()
+    <span class="c"># ✓ correct</span></code></pre>
+    </div>
+  </div>
+
+  <h2>Return Values</h2>
+  <p><code>asyncio.run()</code> returns whatever the coroutine returned:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">compute</span>() -> <span class="bi">int</span>:
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0</span>)
+    <span class="k">return</span> <span class="n">42</span>
+
+result = asyncio.<span class="fn">run</span>(<span class="fn">compute</span>())
+<span class="fn">print</span>(result)   <span class="c"># 42</span></code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p4')"><div class="pn-label">← Back</div><div class="pn-title">await Keyword</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p6')"><div class="pn-label">Next →</div><div class="pn-title">async with & async for</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 6: async with / for ─── -->
+<div class="page" id="p6">
+  <div class="page-eyebrow">Chapter 6</div>
+  <div class="page-title"><code>async with</code> & <code>async for</code></div>
+  <div class="page-subtitle">Two async-aware versions of Python's context managers and iterators — essential for working with resources like HTTP sessions and streams.</div>
+
+  <h2>async with — Async Context Managers</h2>
+  <p>The regular <code>with</code> statement calls <code>__enter__</code> and <code>__exit__</code> on a context manager. <code>async with</code> calls the <em>async</em> versions: <code>__aenter__</code> and <code>__aexit__</code> — which are coroutines themselves and can <code>await</code> things (like closing a connection).</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — async with</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+<span class="k">import</span> aiohttp
+
+<span class="k">async def</span> <span class="fn">fetch</span>(url: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="c"># aiohttp.ClientSession is an async context manager</span>
+    <span class="k">async with</span> aiohttp.<span class="cl">ClientSession</span>() <span class="k">as</span> session:
+        <span class="c"># session.get() also returns an async context manager</span>
+        <span class="k">async with</span> session.<span class="fn">get</span>(url) <span class="k">as</span> response:
+            <span class="k">return</span> <span class="k">await</span> response.<span class="fn">text</span>()
+    <span class="c"># both resources are properly closed/released on exit</span></code></pre>
+  </div>
+
+  <h3>Writing Your Own Async Context Manager</h3>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">class</span> <span class="cl">AsyncDBConnection</span>:
+    <span class="k">async def</span> <span class="fn">__aenter__</span>(<span class="bi">self</span>):
+        <span class="fn">print</span>(<span class="s">"Opening DB connection..."</span>)
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)   <span class="c"># simulate async connect</span>
+        <span class="k">return</span> <span class="bi">self</span>                  <span class="c"># value bound to 'as' variable</span>
+
+    <span class="k">async def</span> <span class="fn">__aexit__</span>(<span class="bi">self</span>, exc_type, exc, tb):
+        <span class="fn">print</span>(<span class="s">"Closing DB connection..."</span>)
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)   <span class="c"># simulate async close</span>
+
+    <span class="k">async def</span> <span class="fn">query</span>(<span class="bi">self</span>, sql: <span class="bi">str</span>):
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.05</span>)
+        <span class="k">return</span> [<span class="s">"row1"</span>, <span class="s">"row2"</span>]
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">async with</span> <span class="cl">AsyncDBConnection</span>() <span class="k">as</span> db:
+        rows = <span class="k">await</span> db.<span class="fn">query</span>(<span class="s">"SELECT * FROM users"</span>)
+        <span class="fn">print</span>(rows)
+    <span class="c"># connection is closed even if an exception is raised</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>async for — Async Iterators</h2>
+  <p><code>async for</code> iterates over objects that produce values asynchronously — like reading lines from a network stream or processing a queue of events. The iterator's <code>__anext__</code> method is a coroutine.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — async for with a stream</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">line_stream</span>(lines):
+    <span class="s">"""Async generator that yields lines with a simulated delay."""</span>
+    <span class="k">for</span> line <span class="k">in</span> lines:
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)   <span class="c"># simulate network read delay</span>
+        <span class="k">yield</span> line
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    data = [<span class="s">"first line"</span>, <span class="s">"second line"</span>, <span class="s">"third line"</span>]
+
+    <span class="k">async for</span> line <span class="k">in</span> <span class="fn">line_stream</span>(data):
+        <span class="fn">print</span>(<span class="s">f"Received: </span>{line}<span class="s">"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-header">💡 Async Generators</div>
+    <p style="margin:0">A function with both <code>async def</code> and <code>yield</code> is an <strong>async generator</strong>. It's automatically an async iterator — no need to implement <code>__aiter__</code> and <code>__anext__</code> manually. Perfect for streaming data.</p>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p5')"><div class="pn-label">← Back</div><div class="pn-title">asyncio.run()</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p7')"><div class="pn-label">Next →</div><div class="pn-title">gather()</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 7: gather ─── -->
+<div class="page" id="p7">
+  <div class="page-eyebrow">Chapter 7</div>
+  <div class="page-title"><code>asyncio.gather()</code> — Run in Parallel</div>
+  <div class="page-subtitle">When multiple coroutines are independent of each other, run them concurrently with <code>gather()</code>.</div>
+
+  <h2>The Problem gather() Solves</h2>
+  <p>Sequential <code>await</code>s run one after another — even when there's no dependency between them. <code>gather()</code> starts all of them at once and waits until all finish:</p>
+
+  <div class="split">
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-bad">Sequential — slow</span></div>
+      <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+  a = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"A"</span>)  <span class="c"># 1s</span>
+  b = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"B"</span>)  <span class="c"># 1s</span>
+  c = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"C"</span>)  <span class="c"># 1s</span>
+  <span class="c"># Total: 3 seconds</span></code></pre>
+      </div>
+    <div class="codeblock">
+      <div class="codeblock-header"><span class="lang-tag lang-good">gather() — fast</span></div>
+      <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+  a, b, c = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+      <span class="fn">fetch</span>(<span class="s">"A"</span>),  <span class="c"># 1s ─┐</span>
+      <span class="fn">fetch</span>(<span class="s">"B"</span>),  <span class="c"># 1s  ├ overlap</span>
+      <span class="fn">fetch</span>(<span class="s">"C"</span>),  <span class="c"># 1s ─┘</span>
+  )
+  <span class="c"># Total: ~1 second</span></code></pre>
+    </div>
+  </div>
+
+  <h2>gather() Guarantees</h2>
+  <ul>
+    <li>Returns a <strong>list of results in the same order</strong> as the input coroutines — regardless of which finished first.</li>
+    <li>If <strong>any coroutine raises an exception</strong>, it propagates immediately (by default) and cancels the rest.</li>
+    <li>You can unpack results directly: <code>a, b, c = await asyncio.gather(f1(), f2(), f3())</code></li>
+  </ul>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — complete gather() example</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, time
+
+<span class="k">async def</span> <span class="fn">fetch_price</span>(ticker: <span class="bi">str</span>, delay: <span class="bi">float</span>) -> <span class="bi">dict</span>:
+    <span class="fn">print</span>(<span class="s">f"  Requesting {ticker}..."</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(delay)
+    <span class="fn">print</span>(<span class="s">f"  Got {ticker}"</span>)
+    <span class="k">return</span> {<span class="s">"ticker"</span>: ticker, <span class="s">"price"</span>: <span class="fn">round</span>(<span class="n">100</span> + delay * <span class="n">10</span>, <span class="n">2</span>)}
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    start = time.<span class="fn">time</span>()
+
+    results = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch_price</span>(<span class="s">"AAPL"</span>, <span class="n">0.8</span>),
+        <span class="fn">fetch_price</span>(<span class="s">"GOOG"</span>, <span class="n">1.2</span>),
+        <span class="fn">fetch_price</span>(<span class="s">"MSFT"</span>, <span class="n">0.5</span>),
+    )
+
+    <span class="fn">print</span>(<span class="s">f"\nAll done in {time.time()-start:.2f}s"</span>)
+    <span class="k">for</span> r <span class="k">in</span> results:
+        <span class="fn">print</span>(<span class="s">f"  </span>{r['ticker']}<span class="s">: $</span>{r['price']}<span class="s">"</span>)
+    <span class="c"># Results are in input order (AAPL, GOOG, MSFT)</span>
+    <span class="c"># even though MSFT finished first</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>Handling Partial Failures with <code>return_exceptions=True</code></h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">might_fail</span>(n: <span class="bi">int</span>):
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)
+    <span class="k">if</span> n <span class="op">==</span> <span class="n">2</span>: <span class="k">raise</span> <span class="cl">ValueError</span>(<span class="s">"Something went wrong"</span>)
+    <span class="k">return</span> <span class="s">f"ok-</span>{n}<span class="s">"</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    results = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">might_fail</span>(<span class="n">1</span>),
+        <span class="fn">might_fail</span>(<span class="n">2</span>),   <span class="c"># this one fails</span>
+        <span class="fn">might_fail</span>(<span class="n">3</span>),
+        return_exceptions=<span class="bi">True</span>   <span class="c"># don't propagate — collect as value</span>
+    )
+    <span class="k">for</span> r <span class="k">in</span> results:
+        <span class="k">if</span> <span class="fn">isinstance</span>(r, <span class="cl">Exception</span>):
+            <span class="fn">print</span>(<span class="s">f"Error: </span>{r}<span class="s">"</span>)
+        <span class="k">else</span>:
+            <span class="fn">print</span>(<span class="s">f"Success: </span>{r}<span class="s">"</span>)
+
+<span class="c"># Output:</span>
+<span class="c"># Success: ok-1</span>
+<span class="c"># Error: Something went wrong</span>
+<span class="c"># Success: ok-3</span></code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p6')"><div class="pn-label">← Back</div><div class="pn-title">async with & async for</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p8')"><div class="pn-label">Next →</div><div class="pn-title">Tasks</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 8: Tasks ─── -->
+<div class="page" id="p8">
+  <div class="page-eyebrow">Chapter 8</div>
+  <div class="page-title">Tasks & <code>create_task()</code></div>
+  <div class="page-subtitle">Tasks schedule a coroutine to run <em>immediately</em> in the background, without waiting for it upfront.</div>
+
+  <h2>Coroutine vs Task</h2>
+  <p>A <strong>coroutine</strong> doesn't start until you <code>await</code> it. A <strong>Task</strong> starts running immediately when created — it's scheduled on the event loop right away, and you can <code>await</code> it later to get the result.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">background_sync</span>():
+    <span class="fn">print</span>(<span class="s">"Sync: started"</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">1</span>)
+    <span class="fn">print</span>(<span class="s">"Sync: complete"</span>)
+    <span class="k">return</span> <span class="s">"sync done"</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="c"># Create a Task — it starts running NOW</span>
+    task = asyncio.<span class="fn">create_task</span>(<span class="fn">background_sync</span>())
+
+    <span class="c"># We can do other things while it runs</span>
+    <span class="fn">print</span>(<span class="s">"Main: doing other work"</span>)
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.5</span>)
+    <span class="fn">print</span>(<span class="s">"Main: still doing things"</span>)
+
+    <span class="c"># Now wait for the task to finish and get its result</span>
+    result = <span class="k">await</span> task
+    <span class="fn">print</span>(<span class="s">f"Main: task returned '{result}'"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-out">Output</span></div>
+    <pre><code>Sync: started
+Main: doing other work
+Main: still doing things
+Sync: complete
+Main: task returned 'sync done'</code></pre>
+  </div>
+
+  <h2>Task Naming (Python 3.7+)</h2>
+  <p>Name your tasks for easier debugging:</p>
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-py">Python</span></div>
+    <pre><code>task = asyncio.<span class="fn">create_task</span>(<span class="fn">sync_data</span>(), name=<span class="s">"data-sync"</span>)
+<span class="fn">print</span>(task.<span class="bi">get_name</span>())   <span class="c"># "data-sync"</span></code></pre>
+  </div>
+
+  <h2>Inspecting and Cancelling Tasks</h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — task lifecycle methods</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code>task = asyncio.<span class="fn">create_task</span>(<span class="fn">long_operation</span>())
+
+task.<span class="bi">done</span>()       <span class="c"># True if finished or cancelled</span>
+task.<span class="bi">cancelled</span>()  <span class="c"># True if cancelled</span>
+task.<span class="bi">result</span>()    <span class="c"># Get result (raises if not done or exception)</span>
+task.<span class="bi">exception</span>() <span class="c"># Get the exception (if any)</span>
+task.<span class="fn">cancel</span>()    <span class="c"># Request cancellation</span></code></pre>
+  </div>
+
+  <h2>TaskGroup <span class="badge new">Python 3.11+</span></h2>
+  <p><code>asyncio.TaskGroup</code> is the modern, safer way to run multiple tasks. If any task raises, all others are cancelled automatically:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python 3.11+</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">async with</span> asyncio.<span class="cl">TaskGroup</span>() <span class="k">as</span> tg:
+        task1 = tg.<span class="fn">create_task</span>(<span class="fn">fetch</span>(<span class="s">"A"</span>))
+        task2 = tg.<span class="fn">create_task</span>(<span class="fn">fetch</span>(<span class="s">"B"</span>))
+        task3 = tg.<span class="fn">create_task</span>(<span class="fn">fetch</span>(<span class="s">"C"</span>))
+    <span class="c"># All three complete (or all are cancelled) before here</span>
+    <span class="fn">print</span>(task1.<span class="bi">result</span>(), task2.<span class="bi">result</span>(), task3.<span class="bi">result</span>())</code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p7')"><div class="pn-label">← Back</div><div class="pn-title">gather()</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p9')"><div class="pn-label">Next →</div><div class="pn-title">Timeouts & Cancellation</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 9: Timeouts ─── -->
+<div class="page" id="p9">
+  <div class="page-eyebrow">Chapter 9</div>
+  <div class="page-title">Timeouts & Cancellation</div>
+  <div class="page-subtitle">Real programs can't wait forever. Cancellation is also the mechanism behind timeouts, task groups, and graceful shutdown.</div>
+
+  <h2>Timeouts with <code>asyncio.wait_for()</code></h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">slow_operation</span>():
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">10</span>)    <span class="c"># takes 10 seconds</span>
+    <span class="k">return</span> <span class="s">"finally done"</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">try</span>:
+        result = <span class="k">await</span> asyncio.<span class="fn">wait_for</span>(
+            <span class="fn">slow_operation</span>(),
+            timeout=<span class="n">3.0</span>           <span class="c"># give it 3 seconds</span>
+        )
+        <span class="fn">print</span>(result)
+    <span class="k">except</span> asyncio.<span class="cl">TimeoutError</span>:
+        <span class="fn">print</span>(<span class="s">"Timed out after 3 seconds"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>asyncio.timeout() Context Manager <span class="badge new">Python 3.11+</span></h2>
+  <p>Cleaner syntax for applying a deadline to a whole block of code:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python 3.11+</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">try</span>:
+        <span class="k">async with</span> asyncio.<span class="fn">timeout</span>(<span class="n">5.0</span>):   <span class="c"># 5-second deadline</span>
+            a = <span class="k">await</span> <span class="fn">step_one</span>()
+            b = <span class="k">await</span> <span class="fn">step_two</span>(a)
+            <span class="fn">print</span>(b)
+    <span class="k">except</span> <span class="cl">TimeoutError</span>:
+        <span class="fn">print</span>(<span class="s">"The whole block exceeded 5 seconds"</span>)</code></pre>
+  </div>
+
+  <h2>How Cancellation Works</h2>
+  <p>When a task is cancelled, Python injects a <code>CancelledError</code> at the next <code>await</code> point inside that coroutine. It propagates up unless you catch it:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — cancellation and cleanup</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">long_running</span>():
+    <span class="k">try</span>:
+        <span class="fn">print</span>(<span class="s">"Starting long work..."</span>)
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">100</span>)   <span class="c"># CancelledError injected here</span>
+        <span class="fn">print</span>(<span class="s">"This never prints"</span>)
+    <span class="k">except</span> asyncio.<span class="cl">CancelledError</span>:
+        <span class="fn">print</span>(<span class="s">"Cleaning up resources..."</span>)
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0</span>)   <span class="c"># you can await during cleanup</span>
+        <span class="fn">print</span>(<span class="s">"Cleanup done"</span>)
+        <span class="k">raise</span>                      <span class="c"># always re-raise CancelledError!</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    task = asyncio.<span class="fn">create_task</span>(<span class="fn">long_running</span>())
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">1</span>)
+    task.<span class="fn">cancel</span>()
+    <span class="k">try</span>:
+        <span class="k">await</span> task
+    <span class="k">except</span> asyncio.<span class="cl">CancelledError</span>:
+        <span class="fn">print</span>(<span class="s">"Task was cancelled"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-header">⚠ Always re-raise CancelledError</div>
+    <p style="margin:0">Swallowing <code>CancelledError</code> (catching it without re-raising) breaks cancellation propagation. The task will appear to be cancelled from the outside but actually continues running. Always <code>raise</code> after your cleanup code.</p>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p8')"><div class="pn-label">← Back</div><div class="pn-title">Tasks</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p10')"><div class="pn-label">Next →</div><div class="pn-title">Queues & Synchronization</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 10: Queues ─── -->
+<div class="page" id="p10">
+  <div class="page-eyebrow">Chapter 10</div>
+  <div class="page-title">Queues & Synchronization</div>
+  <div class="page-subtitle">Coordinate multiple coroutines safely with async-aware queues, locks, semaphores, and events.</div>
+
+  <h2>asyncio.Queue — Producer / Consumer</h2>
+  <p><code>asyncio.Queue</code> is a thread-safe async queue for passing data between coroutines. Producers put items in; consumers get items out.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — producer/consumer pattern</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio
+
+<span class="k">async def</span> <span class="fn">producer</span>(queue: asyncio.<span class="cl">Queue</span>, items: <span class="bi">list</span>):
+    <span class="k">for</span> item <span class="k">in</span> items:
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.3</span>)          <span class="c"># simulate work before producing</span>
+        <span class="k">await</span> queue.<span class="fn">put</span>(item)
+        <span class="fn">print</span>(<span class="s">f"Produced: </span>{item}<span class="s">"</span>)
+    <span class="k">await</span> queue.<span class="fn">put</span>(<span class="bi">None</span>)                  <span class="c"># sentinel value to signal done</span>
+
+<span class="k">async def</span> <span class="fn">consumer</span>(queue: asyncio.<span class="cl">Queue</span>):
+    <span class="k">while True</span>:
+        item = <span class="k">await</span> queue.<span class="fn">get</span>()            <span class="c"># blocks until item available</span>
+        <span class="k">if</span> item <span class="k">is</span> <span class="bi">None</span>:
+            <span class="fn">print</span>(<span class="s">"Consumer: done"</span>)
+            <span class="k">break</span>
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0.1</span>)          <span class="c"># process the item</span>
+        <span class="fn">print</span>(<span class="s">f"Consumed: </span>{item}<span class="s">"</span>)
+        queue.<span class="fn">task_done</span>()
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    queue = asyncio.<span class="cl">Queue</span>(maxsize=<span class="n">3</span>)      <span class="c"># buffer up to 3 items</span>
+    items = [<span class="s">"alpha"</span>, <span class="s">"beta"</span>, <span class="s">"gamma"</span>, <span class="s">"delta"</span>]
+    <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">producer</span>(queue, items),
+        <span class="fn">consumer</span>(queue),
+    )
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>asyncio.Lock — Mutual Exclusion</h2>
+  <p>Protects a shared resource so only one coroutine accesses it at a time:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code>lock = asyncio.<span class="cl">Lock</span>()
+counter = <span class="n">0</span>
+
+<span class="k">async def</span> <span class="fn">increment</span>():
+    <span class="k">global</span> counter
+    <span class="k">async with</span> lock:           <span class="c"># only one coroutine at a time</span>
+        val = counter
+        <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">0</span>)   <span class="c"># yield, but lock prevents others entering</span>
+        counter = val + <span class="n">1</span></code></pre>
+  </div>
+
+  <h2>asyncio.Semaphore — Limit Concurrency</h2>
+  <p>Allows at most N coroutines to run a section simultaneously. Perfect for rate-limiting API calls:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — limit to 5 concurrent requests</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code>sem = asyncio.<span class="cl">Semaphore</span>(<span class="n">5</span>)   <span class="c"># max 5 at a time</span>
+
+<span class="k">async def</span> <span class="fn">limited_fetch</span>(url: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="k">async with</span> sem:             <span class="c"># blocks if 5 are already running</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="fn">do_fetch</span>(url)
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    urls = [<span class="s">f"https://api.example.com/item/</span>{i}<span class="s">"</span> <span class="k">for</span> i <span class="k">in</span> <span class="fn">range</span>(<span class="n">100</span>)]
+    results = <span class="k">await</span> asyncio.<span class="fn">gather</span>(*[<span class="fn">limited_fetch</span>(u) <span class="k">for</span> u <span class="k">in</span> urls])</code></pre>
+  </div>
+
+  <h2>asyncio.Event — Signal Between Coroutines</h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code>event = asyncio.<span class="cl">Event</span>()
+
+<span class="k">async def</span> <span class="fn">waiter</span>():
+    <span class="fn">print</span>(<span class="s">"Waiting for signal..."</span>)
+    <span class="k">await</span> event.<span class="fn">wait</span>()        <span class="c"># suspends until event is set</span>
+    <span class="fn">print</span>(<span class="s">"Got the signal!"</span>)
+
+<span class="k">async def</span> <span class="fn">setter</span>():
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">1</span>)
+    event.<span class="fn">set</span>()               <span class="c"># all waiters are resumed</span></code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p9')"><div class="pn-label">← Back</div><div class="pn-title">Timeouts</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p11')"><div class="pn-label">Next →</div><div class="pn-title">Async HTTP</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 11: aiohttp ─── -->
+<div class="page" id="p11">
+  <div class="page-eyebrow">Chapter 11</div>
+  <div class="page-title">Async HTTP with <code>aiohttp</code></div>
+  <div class="page-subtitle">The most common real-world use of async Python — making non-blocking HTTP requests.</div>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-shell">Install</span></div>
+    <pre><code>pip install aiohttp</code></pre>
+  </div>
+
+  <h2>Basic GET Request</h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, aiohttp
+
+<span class="k">async def</span> <span class="fn">fetch</span>(url: <span class="bi">str</span>) -> <span class="bi">dict</span>:
+    <span class="k">async with</span> aiohttp.<span class="cl">ClientSession</span>() <span class="k">as</span> session:
+        <span class="k">async with</span> session.<span class="fn">get</span>(url) <span class="k">as</span> resp:
+            resp.<span class="fn">raise_for_status</span>()     <span class="c"># raise on 4xx/5xx</span>
+            <span class="k">return</span> <span class="k">await</span> resp.<span class="fn">json</span>()   <span class="c"># parse JSON body</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    data = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"https://api.github.com/repos/python/cpython"</span>)
+    <span class="fn">print</span>(<span class="s">f"Stars: </span>{data['stargazers_count']}<span class="s">"</span>)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>Fetching Many URLs Concurrently</h2>
+  <p>The key: create <strong>one</strong> session and reuse it across all requests. Creating a new session per request is wasteful.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — concurrent fetches with one session</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, aiohttp, time
+
+<span class="k">async def</span> <span class="fn">fetch_one</span>(session: aiohttp.<span class="cl">ClientSession</span>, url: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="k">async with</span> session.<span class="fn">get</span>(url) <span class="k">as</span> resp:
+        <span class="k">return</span> <span class="k">await</span> resp.<span class="fn">text</span>()
+
+<span class="k">async def</span> <span class="fn">fetch_all</span>(urls: <span class="bi">list</span>[<span class="bi">str</span>]) -> <span class="bi">list</span>[<span class="bi">str</span>]:
+    <span class="k">async with</span> aiohttp.<span class="cl">ClientSession</span>() <span class="k">as</span> session:
+        <span class="c"># Pass the SAME session to all coroutines</span>
+        tasks = [<span class="fn">fetch_one</span>(session, url) <span class="k">for</span> url <span class="k">in</span> urls]
+        <span class="k">return</span> <span class="k">await</span> asyncio.<span class="fn">gather</span>(*tasks)
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    urls = [
+        <span class="s">"https://httpbin.org/delay/1"</span>,
+        <span class="s">"https://httpbin.org/delay/1"</span>,
+        <span class="s">"https://httpbin.org/delay/1"</span>,
+    ]
+    start = time.<span class="fn">time</span>()
+    results = <span class="k">await</span> <span class="fn">fetch_all</span>(urls)
+    <span class="fn">print</span>(<span class="s">f"Fetched {len(results)} URLs in {time.time()-start:.2f}s"</span>)
+    <span class="c"># ~1 second instead of 3</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>POST with JSON & Error Handling</h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">create_item</span>(session: aiohttp.<span class="cl">ClientSession</span>, payload: <span class="bi">dict</span>) -> <span class="bi">dict</span>:
+    <span class="k">try</span>:
+        <span class="k">async with</span> session.<span class="fn">post</span>(
+            <span class="s">"https://api.example.com/items"</span>,
+            json=payload,
+            headers={<span class="s">"Authorization"</span>: <span class="s">"Bearer token123"</span>},
+            timeout=aiohttp.<span class="cl">ClientTimeout</span>(total=<span class="n">10</span>)
+        ) <span class="k">as</span> resp:
+            resp.<span class="fn">raise_for_status</span>()
+            <span class="k">return</span> <span class="k">await</span> resp.<span class="fn">json</span>()
+    <span class="k">except</span> aiohttp.<span class="cl">ClientResponseError</span> <span class="k">as</span> e:
+        <span class="fn">print</span>(<span class="s">f"HTTP error </span>{e.status}<span class="s">: </span>{e.message}<span class="s">"</span>)
+        <span class="k">raise</span>
+    <span class="k">except</span> asyncio.<span class="cl">TimeoutError</span>:
+        <span class="fn">print</span>(<span class="s">"Request timed out"</span>)
+        <span class="k">raise</span></code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p10')"><div class="pn-label">← Back</div><div class="pn-title">Queues</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p12')"><div class="pn-label">Next →</div><div class="pn-title">Files & Databases</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 12: Files & DB ─── -->
+<div class="page" id="p12">
+  <div class="page-eyebrow">Chapter 12</div>
+  <div class="page-title">Async Files & Databases</div>
+  <div class="page-subtitle">File I/O and database calls are I/O-bound — the perfect target for async libraries.</div>
+
+  <h2>Async File I/O with <code>aiofiles</code></h2>
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-shell">Install</span></div>
+    <pre><code>pip install aiofiles</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, aiofiles
+
+<span class="k">async def</span> <span class="fn">read_file</span>(path: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="k">async with</span> aiofiles.<span class="fn">open</span>(path, <span class="s">"r"</span>, encoding=<span class="s">"utf-8"</span>) <span class="k">as</span> f:
+        <span class="k">return</span> <span class="k">await</span> f.<span class="fn">read</span>()
+
+<span class="k">async def</span> <span class="fn">write_file</span>(path: <span class="bi">str</span>, content: <span class="bi">str</span>):
+    <span class="k">async with</span> aiofiles.<span class="fn">open</span>(path, <span class="s">"w"</span>, encoding=<span class="s">"utf-8"</span>) <span class="k">as</span> f:
+        <span class="k">await</span> f.<span class="fn">write</span>(content)
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="c"># Read two files concurrently, write results</span>
+    content_a, content_b = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">read_file</span>(<span class="s">"data_a.txt"</span>),
+        <span class="fn">read_file</span>(<span class="s">"data_b.txt"</span>),
+    )
+    combined = content_a + content_b
+    <span class="k">await</span> <span class="fn">write_file</span>(<span class="s">"combined.txt"</span>, combined)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>Async PostgreSQL with <code>asyncpg</code></h2>
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-shell">Install</span></div>
+    <pre><code>pip install asyncpg</code></pre>
+  </div>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, asyncpg
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="c"># Use a connection pool for concurrent queries</span>
+    pool = <span class="k">await</span> asyncpg.<span class="fn">create_pool</span>(
+        dsn=<span class="s">"postgresql://user:password@localhost/mydb"</span>,
+        min_size=<span class="n">5</span>,
+        max_size=<span class="n">20</span>
+    )
+
+    <span class="k">async with</span> pool.<span class="fn">acquire</span>() <span class="k">as</span> conn:
+        <span class="c"># Parameterized queries use $1, $2, ... (not ?)</span>
+        rows = <span class="k">await</span> conn.<span class="fn">fetch</span>(
+            <span class="s">"SELECT id, name, email FROM users WHERE active = $1"</span>,
+            <span class="bi">True</span>
+        )
+        <span class="k">for</span> row <span class="k">in</span> rows:
+            <span class="fn">print</span>(<span class="s">f"  </span>{row['name']}<span class="s"> &lt;</span>{row['email']}<span class="s">&gt;"</span>)
+
+        <span class="c"># Insert</span>
+        <span class="k">await</span> conn.<span class="fn">execute</span>(
+            <span class="s">"INSERT INTO users(name, email) VALUES($1, $2)"</span>,
+            <span class="s">"Alice"</span>, <span class="s">"alice@example.com"</span>
+        )
+
+    <span class="k">await</span> pool.<span class="fn">close</span>()
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>Async SQLite with <code>aiosqlite</code></h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, aiosqlite
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    <span class="k">async with</span> aiosqlite.<span class="fn">connect</span>(<span class="s">"mydb.sqlite"</span>) <span class="k">as</span> db:
+        <span class="k">await</span> db.<span class="fn">execute</span>(<span class="s">"CREATE TABLE IF NOT EXISTS items(name TEXT)"</span>)
+        <span class="k">await</span> db.<span class="fn">execute</span>(<span class="s">"INSERT INTO items VALUES (?)"</span>, (<span class="s">"apple"</span>,))
+        <span class="k">await</span> db.<span class="fn">commit</span>()
+
+        <span class="k">async with</span> db.<span class="fn">execute</span>(<span class="s">"SELECT * FROM items"</span>) <span class="k">as</span> cursor:
+            <span class="k">async for</span> row <span class="k">in</span> cursor:
+                <span class="fn">print</span>(row)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p11')"><div class="pn-label">← Back</div><div class="pn-title">Async HTTP</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p13')"><div class="pn-label">Next →</div><div class="pn-title">Blocking Code</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 13: Blocking Code ─── -->
+<div class="page" id="p13">
+  <div class="page-eyebrow">Chapter 13</div>
+  <div class="page-title">Running Blocking Code</div>
+  <div class="page-subtitle">Sometimes you must use a synchronous library. Here's how to do it without freezing the event loop.</div>
+
+  <h2>The Problem</h2>
+  <p>Any blocking call inside a coroutine freezes the entire event loop for its duration. No other coroutine can run:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header"><span class="lang-tag lang-bad">❌ Freezes the event loop</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">bad</span>():
+    <span class="c"># Blocks the ENTIRE event loop for 3 seconds!</span>
+    time.<span class="fn">sleep</span>(<span class="n">3</span>)                  <span class="c"># ❌ blocking sleep</span>
+    data = requests.<span class="fn">get</span>(url).<span class="fn">text</span>  <span class="c"># ❌ blocking HTTP</span>
+    text = open(<span class="s">"file.txt"</span>).<span class="fn">read</span>() <span class="c"># ❌ blocking file read</span></code></pre>
+  </div>
+
+  <h2>Solution: <code>run_in_executor()</code></h2>
+  <p><code>loop.run_in_executor()</code> offloads a synchronous function to a thread pool, and wraps the result as an awaitable. The event loop remains free to run other coroutines while the thread does the blocking work.</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — run_in_executor</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">import</span> asyncio, time, requests
+<span class="k">from</span> concurrent.futures <span class="k">import</span> <span class="cl">ThreadPoolExecutor</span>
+
+<span class="k">def</span> <span class="fn">blocking_fetch</span>(url: <span class="bi">str</span>) -> <span class="bi">str</span>:
+    <span class="s">"""This is a regular synchronous function."""</span>
+    <span class="k">return</span> requests.<span class="fn">get</span>(url).<span class="fn">text</span>
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    loop = asyncio.<span class="fn">get_running_loop</span>()
+
+    <span class="c"># None = use the default ThreadPoolExecutor</span>
+    result = <span class="k">await</span> loop.<span class="fn">run_in_executor</span>(
+        <span class="bi">None</span>, <span class="fn">blocking_fetch</span>, <span class="s">"https://example.com"</span>
+    )
+    <span class="fn">print</span>(result[:100])
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <h2>With a Custom Thread Pool</h2>
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    loop = asyncio.<span class="fn">get_running_loop</span>()
+
+    <span class="k">with</span> <span class="cl">ThreadPoolExecutor</span>(max_workers=<span class="n">10</span>) <span class="k">as</span> pool:
+        results = <span class="k">await</span> asyncio.<span class="fn">gather</span>(*[
+            loop.<span class="fn">run_in_executor</span>(pool, <span class="fn">blocking_fetch</span>, url)
+            <span class="k">for</span> url <span class="k">in</span> urls
+        ])</code></pre>
+  </div>
+
+  <h2>CPU-Bound Work: ProcessPoolExecutor</h2>
+  <p>For CPU-heavy work (not just I/O), use <code>ProcessPoolExecutor</code> to bypass Python's GIL and run on multiple cores:</p>
+
+  <div class="codeblock">
+    <div class="codeblock-header">
+      <span class="lang-tag lang-py">Python — CPU-bound offloading</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="k">from</span> concurrent.futures <span class="k">import</span> <span class="cl">ProcessPoolExecutor</span>
+
+<span class="k">def</span> <span class="fn">cpu_heavy</span>(n: <span class="bi">int</span>) -> <span class="bi">int</span>:
+    <span class="s">"""Runs in a separate process — true parallelism."""</span>
+    <span class="k">return</span> <span class="fn">sum</span>(i * i <span class="k">for</span> i <span class="k">in</span> <span class="fn">range</span>(n))
+
+<span class="k">async def</span> <span class="fn">main</span>():
+    loop = asyncio.<span class="fn">get_running_loop</span>()
+    <span class="k">with</span> <span class="cl">ProcessPoolExecutor</span>() <span class="k">as</span> pool:
+        result = <span class="k">await</span> loop.<span class="fn">run_in_executor</span>(pool, <span class="fn">cpu_heavy</span>, <span class="n">10_000_000</span>)
+    <span class="fn">print</span>(result)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())</code></pre>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-header">💡 asyncio.to_thread() — Python 3.9+</div>
+    <p style="margin:0">A cleaner shorthand for <code>run_in_executor(None, ...)</code>:</p>
+    <pre style="margin-top:10px;background:var(--code-bg);padding:12px;border-radius:6px;font-family:var(--font-mono);font-size:13px;"><code>result = <span class="k">await</span> asyncio.<span class="fn">to_thread</span>(<span class="fn">blocking_function</span>, arg1, arg2)</code></pre>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p12')"><div class="pn-label">← Back</div><div class="pn-title">Files & Databases</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p14')"><div class="pn-label">Next →</div><div class="pn-title">Common Pitfalls</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 14: Pitfalls ─── -->
+<div class="page" id="p14">
+  <div class="page-eyebrow">Chapter 14</div>
+  <div class="page-title">Common Pitfalls</div>
+  <div class="page-subtitle">The mistakes almost every async Python developer makes at least once — and how to avoid them.</div>
+
+  <h2>1. Blocking the Event Loop</h2>
+  <div class="callout danger">
+    <div class="callout-header">🚫 Most Common Mistake</div>
+    <p style="margin:0">Using any blocking call inside a coroutine stalls all other coroutines until it returns.</p>
+  </div>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ Wrong</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">handler</span>():
+    time.<span class="fn">sleep</span>(<span class="n">2</span>)       <span class="c"># ❌</span>
+    requests.<span class="fn">get</span>(url)  <span class="c"># ❌</span>
+    open(<span class="s">"f.txt"</span>).<span class="fn">read</span>() <span class="c"># ❌</span></code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">handler</span>():
+    <span class="k">await</span> asyncio.<span class="fn">sleep</span>(<span class="n">2</span>)     <span class="c"># ✅</span>
+    <span class="k">await</span> session.<span class="fn">get</span>(url)     <span class="c"># ✅</span>
+    <span class="k">await</span> f.<span class="fn">read</span>()             <span class="c"># ✅ (aiofiles)</span></code></pre></div>
+  </div>
+
+  <h2>2. Forgetting <code>await</code></h2>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ Silent bug</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    result = <span class="fn">fetch</span>()   <span class="c"># forgot await!</span>
+    <span class="fn">print</span>(result)       <span class="c"># prints coroutine object</span>
+    <span class="c"># RuntimeWarning: never awaited</span></code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    result = <span class="k">await</span> <span class="fn">fetch</span>()
+    <span class="fn">print</span>(result)   <span class="c"># the actual data</span></code></pre></div>
+  </div>
+
+  <h2>3. Sequential Awaits When You Need Concurrency</h2>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ Still slow (3 seconds)</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    a = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"A"</span>)
+    b = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"B"</span>)
+    c = <span class="k">await</span> <span class="fn">fetch</span>(<span class="s">"C"</span>)
+    <span class="c"># B waits for A to finish</span></code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Fast (1 second)</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">main</span>():
+    a, b, c = <span class="k">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch</span>(<span class="s">"A"</span>),
+        <span class="fn">fetch</span>(<span class="s">"B"</span>),
+        <span class="fn">fetch</span>(<span class="s">"C"</span>),
+    )</code></pre></div>
+  </div>
+
+  <h2>4. Swallowing <code>CancelledError</code></h2>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ Breaks cancellation</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">worker</span>():
+    <span class="k">try</span>:
+        <span class="k">await</span> <span class="fn">do_work</span>()
+    <span class="k">except</span> <span class="cl">Exception</span>:
+        <span class="fn">pass</span>  <span class="c"># catches CancelledError too!</span></code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">worker</span>():
+    <span class="k">try</span>:
+        <span class="k">await</span> <span class="fn">do_work</span>()
+    <span class="k">except</span> asyncio.<span class="cl">CancelledError</span>:
+        <span class="fn">cleanup</span>()
+        <span class="k">raise</span>  <span class="c"># always re-raise!</span></code></pre></div>
+  </div>
+
+  <h2>5. Nested <code>asyncio.run()</code></h2>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ RuntimeError</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">outer</span>():
+    <span class="c"># Don't call run() inside async!</span>
+    asyncio.<span class="fn">run</span>(<span class="fn">inner</span>())  <span class="c"># ❌</span></code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Correct</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">outer</span>():
+    <span class="k">await</span> <span class="fn">inner</span>()         <span class="c"># ✅</span>
+
+asyncio.<span class="fn">run</span>(<span class="fn">outer</span>())   <span class="c"># once, at top level</span></code></pre></div>
+  </div>
+
+  <h2>6. Creating a Session Per Request</h2>
+  <div class="split">
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-bad">❌ Wasteful</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">fetch</span>(url):
+    <span class="c"># New session every call</span>
+    <span class="k">async with</span> aiohttp.<span class="cl">ClientSession</span>() <span class="k">as</span> s:
+        <span class="k">async with</span> s.<span class="fn">get</span>(url) <span class="k">as</span> r:
+            <span class="k">return</span> <span class="k">await</span> r.<span class="fn">text</span>()</code></pre></div>
+    <div class="codeblock"><div class="codeblock-header"><span class="lang-tag lang-good">✅ Share one session</span></div>
+    <pre><code><span class="k">async def</span> <span class="fn">fetch</span>(session, url):
+    <span class="c"># Reuse the same session</span>
+    <span class="k">async with</span> session.<span class="fn">get</span>(url) <span class="k">as</span> r:
+        <span class="k">return</span> <span class="k">await</span> r.<span class="fn">text</span>()</code></pre></div>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p13')"><div class="pn-label">← Back</div><div class="pn-title">Blocking Code</div></div>
+    <div class="page-nav-btn right" onclick="goTo('p15')"><div class="pn-label">Next →</div><div class="pn-title">Quick Reference</div></div>
+  </div>
+</div>
+
+<!-- ─── PAGE 15: Reference ─── -->
+<div class="page" id="p15">
+  <div class="page-eyebrow">Chapter 15</div>
+  <div class="page-title">Quick Reference</div>
+  <div class="page-subtitle">Every pattern, every keyword, every primitive — in one place.</div>
+
+  <h2>Core Syntax</h2>
+  <table class="data-table">
+    <thead><tr><th>Syntax</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>async def fn()</td><td>Define a coroutine function</td></tr>
+      <tr><td>await expr</td><td>Suspend until expr completes; only inside async def</td></tr>
+      <tr><td>async with obj as x</td><td>Async context manager; calls __aenter__ / __aexit__</td></tr>
+      <tr><td>async for x in it</td><td>Async iteration; calls __anext__ which is a coroutine</td></tr>
+      <tr><td>async def fn(): yield x</td><td>Async generator — produces values asynchronously</td></tr>
+    </tbody>
+  </table>
+
+  <h2>asyncio Functions</h2>
+  <table class="data-table">
+    <thead><tr><th>Function</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>asyncio.run(coro)</td><td>Entry point — create loop, run coro, close loop</td></tr>
+      <tr><td>asyncio.sleep(n)</td><td>Async sleep — yields control for n seconds</td></tr>
+      <tr><td>asyncio.gather(*coros)</td><td>Run coroutines concurrently, return list of results</td></tr>
+      <tr><td>asyncio.create_task(coro)</td><td>Schedule coro immediately; returns Task</td></tr>
+      <tr><td>asyncio.wait_for(coro, timeout)</td><td>Cancel and raise TimeoutError if timeout exceeded</td></tr>
+      <tr><td>asyncio.timeout(n)</td><td>Context manager deadline (Python 3.11+)</td></tr>
+      <tr><td>asyncio.get_running_loop()</td><td>Get the currently running event loop</td></tr>
+      <tr><td>asyncio.to_thread(fn, *args)</td><td>Run blocking fn in thread pool (Python 3.9+)</td></tr>
+      <tr><td>loop.run_in_executor(pool, fn)</td><td>Run fn in executor, returns awaitable</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Synchronization Primitives</h2>
+  <table class="data-table">
+    <thead><tr><th>Primitive</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>asyncio.Lock()</td><td>Mutual exclusion — one coroutine at a time</td></tr>
+      <tr><td>asyncio.Semaphore(n)</td><td>Allow up to n coroutines concurrently</td></tr>
+      <tr><td>asyncio.Event()</td><td>Signal: set() wakes all wait() callers</td></tr>
+      <tr><td>asyncio.Condition()</td><td>Like Event + Lock combined</td></tr>
+      <tr><td>asyncio.Queue(maxsize)</td><td>Async FIFO queue — put() / get()</td></tr>
+      <tr><td>asyncio.PriorityQueue()</td><td>Priority queue variant</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Key Libraries</h2>
+  <table class="data-table">
+    <thead><tr><th>Library</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>aiohttp</td><td>Async HTTP client + server</td></tr>
+      <tr><td>aiofiles</td><td>Async file I/O</td></tr>
+      <tr><td>asyncpg</td><td>Async PostgreSQL driver</td></tr>
+      <tr><td>aiosqlite</td><td>Async SQLite</td></tr>
+      <tr><td>aiomysql</td><td>Async MySQL driver</td></tr>
+      <tr><td>redis.asyncio</td><td>Async Redis client (built into redis-py)</td></tr>
+      <tr><td>FastAPI</td><td>Async web framework with native async support</td></tr>
+      <tr><td>anyio</td><td>Compatibility layer for asyncio + trio</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The Mental Checklist</h2>
+  <div class="callout tip">
+    <div class="callout-header">✅ Before you ship async code</div>
+    <ul style="margin:0 0 0 18px">
+      <li>Every <code>async def</code> call is <code>await</code>ed (or wrapped in a Task)</li>
+      <li>No <code>time.sleep()</code>, <code>requests.get()</code>, or blocking file I/O inside coroutines</li>
+      <li><code>CancelledError</code> is re-raised after cleanup</li>
+      <li><code>asyncio.run()</code> appears exactly once, at the top level</li>
+      <li>Independent I/O operations use <code>gather()</code>, not sequential <code>await</code></li>
+      <li>HTTP sessions are created once and reused, not per-request</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-header">🚀 What to Explore Next</div>
+    <ul style="margin:0 0 0 18px">
+      <li><strong>FastAPI</strong> — build async REST APIs with automatic OpenAPI docs</li>
+      <li><strong>asyncio streams</strong> — low-level TCP/UDP with <code>asyncio.open_connection()</code></li>
+      <li><strong>WebSockets</strong> — with <code>websockets</code> library or FastAPI WebSocket support</li>
+      <li><strong>Structured concurrency</strong> — <code>asyncio.TaskGroup</code> (3.11+) for safer task management</li>
+      <li><strong>anyio / trio</strong> — alternative async runtimes with different design philosophies</li>
+      <li><strong>uvloop</strong> — drop-in faster event loop based on libuv</li>
+    </ul>
+  </div>
+
+  <div class="page-nav">
+    <div class="page-nav-btn" onclick="goTo('p14')"><div class="pn-label">← Back</div><div class="pn-title">Common Pitfalls</div></div>
+    <div></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── Navigation ──────────────────────────────────────
+const pages   = document.querySelectorAll('.page');
+const navLinks = document.querySelectorAll('.nav-link');
+const total   = pages.length;
+
+function goTo(id) {
+  pages.forEach(p => p.classList.remove('active'));
+  navLinks.forEach(l => l.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-page="${id}"]`).classList.add('active');
+  document.getElementById('main').scrollTo({ top: 0, behavior: 'smooth' });
+  updateProgress();
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => goTo(link.dataset.page));
+});
+
+function updateProgress() {
+  const activeIds = [...pages].map(p => p.id);
+  const current   = [...pages].findIndex(p => p.classList.contains('active'));
+  const pct       = ((current + 1) / total) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+updateProgress();
+
+// ── Copy code ───────────────────────────────────────
+function copyCode(btn) {
+  const pre  = btn.closest('.codeblock').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1800);
+  });
+}
+
+// ── Quiz ────────────────────────────────────────────
+function doQuiz(opt, correct) {
+  const opts = opt.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  const fb   = opt.closest('.quiz').querySelector('.quiz-fb');
+  opts.forEach(o => o.classList.add('locked'));
+  opt.classList.add(correct ? 'correct' : 'wrong');
+  fb.style.display = 'block';
+}
+</script>
+</body>
+</html>
